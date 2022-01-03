@@ -1,0 +1,90 @@
+#
+# This is the canonical configuration for the `README.md`
+# Run `make readme` to rebuild the `README.md`
+#
+
+# Name of this project
+name: terraform-aws-glue
+
+# Logo for this project
+#logo: docs/logo.png
+
+# License of this project
+license: "APACHE2"
+
+# Copyrights
+copyrights:
+  - name: "Cloud Posse, LLC"
+    url: "https://cloudposse.com"
+    year: "2021"
+
+# Canonical GitHub repo
+github_repo: cloudposse/terraform-aws-glue
+
+# Badges to display
+badges:
+  - name: "Latest Release"
+    image: "https://img.shields.io/github/release/cloudposse/terraform-example-module.svg"
+    url: "https://github.com/cloudposse/terraform-example-module/releases/latest"
+  - name: "Slack Community"
+    image: "https://slack.cloudposse.com/badge.svg"
+    url: "https://slack.cloudposse.com"
+  - name: "Discourse Forum"
+    image: "https://img.shields.io/discourse/https/ask.sweetops.com/posts.svg"
+    url: "https://ask.sweetops.com/"
+
+# List any related terraform modules that this module may be used with or that this module depends on.
+related:
+  - name: "terraform-aws-components"
+    description: "Repository collection of aws components."
+    url: "https://github.com/cloudposse/terraform-aws-components"
+
+references:
+  - name: Glue Getting Started Guide
+    description: Guide for getting oriented with glue and spark
+    url: https://docs.aws.amazon.com/glue/latest/dg/getting-started.html
+  - name: Program AWS Glue ETL Scripts in Python
+    description: Documentation about the process of running ETL with AWS Glue and the Python programming language
+    url: https://docs.aws.amazon.com/glue/latest/dg/aws-glue-programming-python.html
+
+# Short description of this project
+description: |-
+  Module for provisioning and managing an AWS Glue resources. For example, provisioning a Glue workflow with Glue job that 
+  runs on CRON configured schedule.
+
+# Introduction to the project
+introduction: |-
+  This is an introduction.
+
+# How to use this module. Should be an easy example to copy and paste.
+usage: |-
+  For a complete example, see [examples/complete](examples/complete).
+
+  For automated tests of the complete example using [bats](https://github.com/bats-core/bats-core) and [Terratest](https://github.com/gruntwork-io/terratest)
+  (which tests and deploys the example on AWS), see [test](test).
+
+  ```hcl
+
+  }
+  ```
+
+# Example usage
+examples: |-
+  Here is an example of using this module:
+  - [`examples/complete`](https://github.com/cloudposse/terraform-aws-glue/tree/master/examples/complete) - complete example of using this module
+
+# How to get started quickly
+quickstart: |-
+  Here's how to get started...
+
+# Other files to include in this README from the project folder
+include:
+  - "docs/targets.md"
+  - "docs/terraform.md"
+
+# Contributors to this project
+contributors:
+  - name: "Erik Osterman"
+    github: "osterman"
+  - name: "Leo Przybylski"
+    github: "r351574nc3"
