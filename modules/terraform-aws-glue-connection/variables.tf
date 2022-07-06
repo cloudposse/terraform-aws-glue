@@ -1,3 +1,8 @@
+variable "region" {
+  type        = string
+  description = "AWS Region"
+}
+
 variable "database_instance" {
   description = "RDS database instance identifier used to derive connection information from SSM."
   type        = string
@@ -27,11 +32,6 @@ variable "jdbc_database_type" {
     condition     = contains(["mysql", "postgresql", "oracle", "redshift"], var.jdbc_database_type)
     error_message = "Database type must be one of mysql, postgresql, oracle, or redshift."
   }
-}
-
-variable "region" {
-  type        = string
-  description = "AWS Region"
 }
 
 variable "vpc_id" {
