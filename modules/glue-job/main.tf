@@ -4,18 +4,22 @@ locals {
   metrics_enabled        = var.metrics_enabled
   extra_py_files_enabled = length(var.extra_py_files) > 0
   extra_files_enabled    = length(var.extra_files) > 0
+
   metrics_arguments = {
     "--enable-metrics" = ""
   }
+
   logging_arguments = {
     "--continuous-log-logGroup"          = module.cloudwatch_log_group.log_group_name
     "--enable-continuous-cloudwatch-log" = "true"
     "--enable-continuous-log-filter"     = "true"
   }
+
   spark_arguments = {
     "--enable-spark-ui"       = true,
     "--spark-event-logs-path" = var.spark_event_logs_path
   }
+
   job_arguments = merge(
     var.default_arguments,
     local.logging_enabled ? local.logging_arguments : {},
@@ -34,19 +38,15 @@ locals {
 
 module "cloudwatch_log_group" {
   source  = "cloudposse/cloudwatch-logs/aws"
-  version = "0.6.2"
-
-  stream_names = [module.this.name]
-
-  iam_role_enabled = false
-
-  retention_in_days = var.cloudwatch_logs_retention_in_days
+  version = "0.6.6"
 
   enabled = local.logging_enabled
 
-  context = module.this.context
+  stream_names      = [module.this.name]
+  iam_role_enabled  = false
+  retention_in_days = var.cloudwatch_logs_retention_in_days
 
-  tags = module.this.tags
+  context = module.this.context
 }
 
 resource "aws_glue_job" "this" {
@@ -75,5 +75,6 @@ resource "aws_glue_job" "this" {
   worker_type            = var.worker_type
   role_arn               = var.role_arn
   security_configuration = var.security_configuration
-  tags                   = module.this.tags
+
+  tags = module.this.tags
 }

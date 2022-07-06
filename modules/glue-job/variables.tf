@@ -1,3 +1,8 @@
+variable "region" {
+  type        = string
+  description = "AWS Region"
+}
+
 variable "auto_scaling_enabled" {
   description = "Should autoscaling arguments be passed to glue jobs at execution time?"
   type        = bool
@@ -150,7 +155,7 @@ variable "number_of_workers" {
 
 variable "optimal_partition_size" {
   description = <<-EOT
-  Optimal partition sizing of your data sets. Defaults to 512mb. Required to use Compaction ETL script that is 
+  Optimal partition sizing of your data sets. Defaults to 512mb. Required to use Compaction ETL script that is
   managed by this module.
   EOT
   type        = number
@@ -168,11 +173,6 @@ variable "python_version" {
     condition     = contains(["2", "3"], var.python_version)
     error_message = "Python version must either be 2 or 3."
   }
-}
-
-variable "region" {
-  type        = string
-  description = "AWS Region"
 }
 
 variable "rename_algorithm_v2_enabled" {

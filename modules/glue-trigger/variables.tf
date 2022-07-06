@@ -1,3 +1,8 @@
+variable "region" {
+  type        = string
+  description = "AWS Region"
+}
+
 variable "actions" {
   description = "Arguments to be passed to the job action script."
   type = list(object({
@@ -29,11 +34,6 @@ variable "max_concurrent_runs" {
   description = "The maximum number of concurrent runs allowed for a job. The default is 1."
   type        = number
   default     = 1
-}
-
-variable "region" {
-  type        = string
-  description = "AWS Region"
 }
 
 variable "schedule" {

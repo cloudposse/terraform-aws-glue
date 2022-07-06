@@ -1,3 +1,3 @@
-provider "local" {
-  # Configuration options
+provider "aws" {
+  region = var.region
 }
