@@ -3,17 +3,17 @@ locals {
 }
 
 resource "aws_glue_trigger" "this" {
+  count = local.enabled ? 1 : 0
+
   name          = module.this.id
   workflow_name = var.workflow_name
   type          = var.type
   schedule      = var.schedule
-
-  enabled = local.enabled
+  enabled       = var.start_trigger
 
   dynamic "predicate" {
     for_each = var.type == "CONDITIONAL" ? [1] : []
     content {
-
       dynamic "conditions" {
         for_each = var.conditions
 

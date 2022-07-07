@@ -64,7 +64,8 @@ data "aws_ssm_parameter" "password" {
 
 resource "aws_glue_connection" "this" {
   count = local.enabled ? 1 : 0
-  name  = module.this.id
+
+  name = module.this.id
 
   connection_type       = var.connection_type
   connection_properties = local.connection_properties

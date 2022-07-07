@@ -52,6 +52,8 @@ module "cloudwatch_log_group" {
 resource "aws_glue_job" "this" {
   count = local.enabled ? 1 : 0
 
+  name = module.this.id
+
   command {
     script_location = var.script_s3_key
     python_version  = 3
@@ -70,7 +72,6 @@ resource "aws_glue_job" "this" {
   glue_version           = var.glue_version
   max_retries            = var.max_retries
   timeout                = var.timeout
-  name                   = module.this.id
   number_of_workers      = var.number_of_workers
   worker_type            = var.worker_type
   role_arn               = var.role_arn

@@ -1,9 +1,9 @@
 output "id" {
-  description = "Workflow name"
-  value       = module.this.enabled ? aws_glue_trigger.this.id : null
+  description = "Trigger ID"
+  value       = local.enabled ? aws_glue_trigger.this[0].id : ""
 }
 
 output "arn" {
-  description = "Amazon Resource Name (ARN) of Glue Workflow"
-  value       = module.this.enabled ? aws_glue_trigger.this.arn : null
+  description = "Trigger ARN"
+  value       = local.enabled ? aws_glue_trigger.this[0].arn : ""
 }

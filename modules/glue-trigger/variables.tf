@@ -4,24 +4,24 @@ variable "region" {
 }
 
 variable "actions" {
-  description = "Arguments to be passed to the job action script."
   type = list(object({
     job_name     = string,
     crawler_name = string,
     arguments    = map(string),
     timeout      = number
   }))
+  description = "Arguments to be passed to the job action script."
 }
 
 variable "conditions" {
-  description = "Conditions for activating this trigger. Required for triggers where type is CONDITIONAL"
   type        = list(map(string))
+  description = "Conditions for activating this trigger. Required for triggers where type is CONDITIONAL"
   default     = []
 }
 
 variable "logical" {
-  description = "How to handle multiple conditions. Defaults to AND. Valid values are AND or ANY."
   type        = string
+  description = "How to handle multiple conditions. Defaults to AND. Valid values are AND or ANY."
   default     = "AND"
 
   validation {
@@ -31,14 +31,14 @@ variable "logical" {
 }
 
 variable "max_concurrent_runs" {
-  description = "The maximum number of concurrent runs allowed for a job. The default is 1."
   type        = number
+  description = "The maximum number of concurrent runs allowed for a job. The default is 1."
   default     = 1
 }
 
 variable "schedule" {
-  description = "Cron formatted schedule. Required for triggers with type SCHEDULED."
   type        = string
+  description = "Cron formatted schedule. Required for triggers with type SCHEDULED."
   default     = ""
 
   validation {
@@ -48,18 +48,24 @@ variable "schedule" {
 }
 
 variable "type" {
-  description = "The type of workflow. Options are CONDITIONAL or SCHEDULED."
   type        = string
+  description = "The type of workflow. Options are CONDITIONAL or SCHEDULED."
   default     = "CONDITIONAL"
 
   validation {
-    condition     = contains(["CONDITIONAL", "SCHEDULE"], var.type)
-    error_message = "Supported options are CONDITIONAL or SCHEDULED."
+    condition     = contains(["CONDITIONAL", "SCHEDULE", "ON_DEMAND"], var.type)
+    error_message = "Supported options are CONDITIONAL, SCHEDULED or ON_DEMAND."
   }
 }
 
 variable "workflow_name" {
-  description = "Name of the Glue workflow to be related to."
   type        = string
+  description = "Name of the Glue workflow to be related to."
   default     = ""
+}
+
+variable "start_trigger" {
+  type        = bool
+  description = "Whether to start the created trigger"
+  default     = true
 }
