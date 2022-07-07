@@ -30,12 +30,6 @@ variable "logical" {
   }
 }
 
-variable "max_concurrent_runs" {
-  type        = number
-  description = "The maximum number of concurrent runs allowed for a job. The default is 1."
-  default     = 1
-}
-
 variable "schedule" {
   type        = string
   description = "Cron formatted schedule. Required for triggers with type SCHEDULED."
@@ -43,13 +37,13 @@ variable "schedule" {
 
   validation {
     condition     = can(regex("/(((\\d+,)+\\d+|(\\d+(\\/|-)\\d+)|\\d+|\\*) ?){5,7}/", var.schedule))
-    error_message = "The value must be a valid cron expression."
+    error_message = "The value must be a valid Cron expression."
   }
 }
 
 variable "type" {
   type        = string
-  description = "The type of workflow. Options are CONDITIONAL or SCHEDULED."
+  description = "The type of trigger. Options are CONDITIONAL, SCHEDULED or ON_DEMAND."
   default     = "CONDITIONAL"
 
   validation {
@@ -61,7 +55,7 @@ variable "type" {
 variable "workflow_name" {
   type        = string
   description = "Name of the Glue workflow to be related to."
-  default     = ""
+  default     = null
 }
 
 variable "start_trigger" {
