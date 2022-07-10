@@ -3,25 +3,51 @@ variable "region" {
   description = "AWS Region"
 }
 
+variable "trigger_name" {
+  type        = string
+  description = "Glue trigger name. If not provided, the name will be constructed from the context."
+  default     = null
+}
+
+variable "trigger_description" {
+  type        = string
+  description = "Glue trigger description."
+  default     = null
+}
+
+variable "workflow_name" {
+  type        = string
+  description = "A workflow to which the trigger should be associated to."
+  default     = null
+}
+
 variable "actions" {
   type = list(object({
-    job_name     = string,
-    crawler_name = string,
-    arguments    = map(string),
-    timeout      = number
+    job_name               = string
+    crawler_name           = string
+    arguments              = list(string)
+    security_configuration = string
+    notification_property  = map(string)
+    timeout                = number
   }))
-  description = "Arguments to be passed to the job action script."
+  description = "List of actions initiated by the trigger when it fires."
 }
 
 variable "conditions" {
-  type        = list(map(string))
-  description = "Conditions for activating this trigger. Required for triggers where type is CONDITIONAL"
+  type = list(object({
+    job_name         = string
+    crawler_name     = string
+    state            = string
+    crawl_state      = string
+    logical_operator = string
+  }))
+  description = "Conditions for activating the trigger. Required for triggers where type is `CONDITIONAL`."
   default     = []
 }
 
 variable "logical" {
   type        = string
-  description = "How to handle multiple conditions. Defaults to AND. Valid values are AND or ANY."
+  description = "How to handle multiple conditions. Defaults to `AND`. Valid values are `AND` or `ANY`."
   default     = "AND"
 
   validation {
@@ -32,8 +58,8 @@ variable "logical" {
 
 variable "schedule" {
   type        = string
-  description = "Cron formatted schedule. Required for triggers with type SCHEDULED."
-  default     = ""
+  description = "Cron formatted schedule. Required for triggers with type `SCHEDULED`."
+  default     = null
 
   validation {
     condition     = can(regex("/(((\\d+,)+\\d+|(\\d+(\\/|-)\\d+)|\\d+|\\*) ?){5,7}/", var.schedule))
@@ -52,14 +78,14 @@ variable "type" {
   }
 }
 
-variable "workflow_name" {
-  type        = string
-  description = "Name of the Glue workflow to be related to."
-  default     = null
+variable "trigger_enabled" {
+  type        = bool
+  description = "Whether to start the created trigger."
+  default     = true
 }
 
-variable "start_trigger" {
+variable "start_on_creation" {
   type        = bool
-  description = "Whether to start the created trigger"
+  description = "Set to `true` to start `SCHEDULED` and `CONDITIONAL` triggers when created. `true` is not supported for `ON_DEMAND` triggers."
   default     = true
 }
