@@ -24,8 +24,8 @@ github_repo: cloudposse/terraform-aws-glue
 # Badges to display
 badges:
   - name: "Latest Release"
-    image: "https://img.shields.io/github/release/cloudposse/terraform-example-module.svg"
-    url: "https://github.com/cloudposse/terraform-example-module/releases/latest"
+    image: "https://img.shields.io/github/release/cloudposse/terraform-aws-glue.svg"
+    url: "https://github.com/cloudposse/terraform-aws-glue/releases/latest"
   - name: "Slack Community"
     image: "https://slack.cloudposse.com/badge.svg"
     url: "https://slack.cloudposse.com"
@@ -36,7 +36,7 @@ badges:
 # List any related terraform modules that this module may be used with or that this module depends on.
 related:
   - name: "terraform-aws-components"
-    description: "Repository collection of aws components."
+    description: "Catalog of terraform AWS components"
     url: "https://github.com/cloudposse/terraform-aws-components"
 
 references:
@@ -49,12 +49,11 @@ references:
 
 # Short description of this project
 description: |-
-  Module for provisioning and managing an AWS Glue resources. For example, provisioning a Glue workflow with Glue job that 
-  runs on CRON configured schedule.
+  Terraform modules for provisioning and managing AWS Glue resources. For example, provisioning a Glue workflow with Glue job that 
+  runs on a CRON schedule.
 
 # Introduction to the project
-introduction: |-
-  This is an introduction.
+# introduction: |-
 
 # How to use this module. Should be an easy example to copy and paste.
 usage: |-
@@ -63,18 +62,13 @@ usage: |-
   For automated tests of the complete example using [bats](https://github.com/bats-core/bats-core) and [Terratest](https://github.com/gruntwork-io/terratest)
   (which tests and deploys the example on AWS), see [test](test).
 
-  ```hcl
-  }
-  ```
-
 # Example usage
 examples: |-
   Here is an example of using this module:
   - [`examples/complete`](https://github.com/cloudposse/terraform-aws-glue/tree/master/examples/complete) - complete example of using this module
 
 # How to get started quickly
-quickstart: |-
-  Here's how to get started...
+# quickstart: |-
 
 # Other files to include in this README from the project folder
 include:
@@ -87,3 +81,5 @@ contributors:
     github: "osterman"
   - name: "Leo Przybylski"
     github: "r351574nc3"
+  - name: "Andriy Knysh"
+    github: "aknysh"
