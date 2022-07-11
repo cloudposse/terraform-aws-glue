@@ -1,9 +1,9 @@
 output "id" {
-  description = "Trigger ID"
-  value       = local.enabled ? aws_glue_trigger.this[0].id : ""
+  description = "Catalog table ID"
+  value       = local.enabled ? aws_glue_catalog_table.this[0].id : ""
 }
 
 output "arn" {
-  description = "Trigger ARN"
-  value       = local.enabled ? aws_glue_trigger.this[0].arn : ""
+  description = "Catalog table ARN"
+  value       = local.enabled ? aws_glue_catalog_table.this[0].arn : ""
 }
