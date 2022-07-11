@@ -2,41 +2,15 @@ locals {
   enabled = module.this.enabled
 }
 
-resource "aws_glue_trigger" "this" {
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/glue_catalog_database
+resource "aws_glue_catalog_database" "this" {
   count = local.enabled ? 1 : 0
 
-  name          = module.this.id
-  workflow_name = var.workflow_name
-  type          = var.type
-  schedule      = var.schedule
-  enabled       = var.start_trigger
-
-  dynamic "predicate" {
-    for_each = var.type == "CONDITIONAL" ? [1] : []
-    content {
-      dynamic "conditions" {
-        for_each = var.conditions
-
-        content {
-          job_name = conditions.value["job_name"]
-          state    = conditions.value["state"]
-        }
-      }
-
-      logical = var.logical
-    }
-  }
-
-  dynamic "actions" {
-    for_each = var.actions
-
-    content {
-      job_name     = actions.value.job_name
-      crawler_name = actions.value.crawler_name
-      arguments    = actions.value.arguments
-      timeout      = actions.value.timeout
-    }
-  }
-
-  tags = module.this.tags
+  name                            = coalesce(var.catalog_database_name, module.this.id)
+  description                     = var.catalog_database_description
+  catalog_id                      = var.catalog_id
+  create_table_default_permission = var.create_table_default_permission
+  location_uri                    = var.location_uri
+  parameters                      = var.parameters
+  target_database                 = var.target_database
 }
