@@ -2,41 +2,16 @@ locals {
   enabled = module.this.enabled
 }
 
-resource "aws_glue_trigger" "this" {
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/glue_schema
+resource "aws_glue_schema" "this" {
   count = local.enabled ? 1 : 0
 
-  name          = module.this.id
-  workflow_name = var.workflow_name
-  type          = var.type
-  schedule      = var.schedule
-  enabled       = var.start_trigger
-
-  dynamic "predicate" {
-    for_each = var.type == "CONDITIONAL" ? [1] : []
-    content {
-      dynamic "conditions" {
-        for_each = var.conditions
-
-        content {
-          job_name = conditions.value["job_name"]
-          state    = conditions.value["state"]
-        }
-      }
-
-      logical = var.logical
-    }
-  }
-
-  dynamic "actions" {
-    for_each = var.actions
-
-    content {
-      job_name     = actions.value.job_name
-      crawler_name = actions.value.crawler_name
-      arguments    = actions.value.arguments
-      timeout      = actions.value.timeout
-    }
-  }
+  schema_name       = coalesce(var.schema_name, module.this.id)
+  description       = var.schema_description
+  registry_arn      = var.registry_arn
+  data_format       = var.data_format
+  compatibility     = var.compatibility
+  schema_definition = var.schema_definition
 
   tags = module.this.tags
 }

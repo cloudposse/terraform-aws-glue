@@ -1,65 +1,44 @@
-variable "region" {
+variable "schema_name" {
   type        = string
-  description = "AWS Region"
-}
-
-variable "actions" {
-  type = list(object({
-    job_name     = string,
-    crawler_name = string,
-    arguments    = map(string),
-    timeout      = number
-  }))
-  description = "Arguments to be passed to the job action script."
-}
-
-variable "conditions" {
-  type        = list(map(string))
-  description = "Conditions for activating this trigger. Required for triggers where type is CONDITIONAL"
-  default     = []
-}
-
-variable "logical" {
-  type        = string
-  description = "How to handle multiple conditions. Defaults to AND. Valid values are AND or ANY."
-  default     = "AND"
-
-  validation {
-    condition     = contains(["AND", "ANY"], var.logical)
-    error_message = "Supported values are AND and ANY."
-  }
-}
-
-variable "schedule" {
-  type        = string
-  description = "Cron formatted schedule. Required for triggers with type SCHEDULED."
-  default     = ""
-
-  validation {
-    condition     = can(regex("/(((\\d+,)+\\d+|(\\d+(\\/|-)\\d+)|\\d+|\\*) ?){5,7}/", var.schedule))
-    error_message = "The value must be a valid Cron expression."
-  }
-}
-
-variable "type" {
-  type        = string
-  description = "The type of trigger. Options are CONDITIONAL, SCHEDULED or ON_DEMAND."
-  default     = "CONDITIONAL"
-
-  validation {
-    condition     = contains(["CONDITIONAL", "SCHEDULE", "ON_DEMAND"], var.type)
-    error_message = "Supported options are CONDITIONAL, SCHEDULED or ON_DEMAND."
-  }
-}
-
-variable "workflow_name" {
-  type        = string
-  description = "Name of the Glue workflow to be related to."
+  description = "Glue schema name. If not provided, the name will be constructed from the context."
   default     = null
 }
 
-variable "start_trigger" {
-  type        = bool
-  description = "Whether to start the created trigger"
-  default     = true
+variable "schema_description" {
+  type        = string
+  description = "Glue schema description."
+  default     = null
+}
+
+variable "registry_arn" {
+  type        = string
+  description = "The ARN of the Glue Registry to create the schema in."
+}
+
+variable "data_format" {
+  type        = string
+  description = "The data format of the schema definition. Valid values are `AVRO`, `JSON` and `PROTOBUF`."
+  default     = "JSON"
+
+  validation {
+    condition     = contains(["AVRO", "JSON", "PROTOBUF"], var.data_format)
+    error_message = "Supported options are AVRO, JSON or PROTOBUF."
+  }
+}
+
+variable "compatibility" {
+  type        = string
+  description = "The compatibility mode of the schema. Valid values are NONE, DISABLED, BACKWARD, BACKWARD_ALL, FORWARD, FORWARD_ALL, FULL, and FULL_ALL."
+  default     = "NONE"
+
+  validation {
+    condition     = contains(["NONE", "DISABLED", "BACKWARD", "BACKWARD_ALL", "FORWARD", "FORWARD_ALL", "FULL", "FULL_ALL"], var.compatibility)
+    error_message = "Supported options are NONE, DISABLED, BACKWARD, BACKWARD_ALL, FORWARD, FORWARD_ALL, FULL, and FULL_ALL."
+  }
+}
+
+variable "schema_definition" {
+  type        = string
+  description = "The schema definition using the `data_format` setting."
+  default     = null
 }

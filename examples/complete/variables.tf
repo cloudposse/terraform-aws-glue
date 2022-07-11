@@ -1,3 +1,8 @@
+variable "region" {
+  type        = string
+  description = "AWS Region"
+}
+
 variable "crawler_name" {
   description = "The name of the crawler that needs to be executed at end of the workflow"
   type        = string
@@ -82,16 +87,11 @@ variable "number_of_workers" {
 
 variable "optimal_partition_size" {
   description = <<-EOT
-  Optimal partition sizing of your data sets. Defaults to 512mb. Required to use Compaction ETL script that is 
+  Optimal partition sizing of your data sets. Defaults to 512mb. Required to use Compaction ETL script that is
   managed by this module.
   EOT
   type        = number
   default     = 512
-}
-
-variable "region" {
-  type        = string
-  description = "AWS Region"
 }
 
 variable "script_s3_bucket" {

@@ -1,8 +1,3 @@
-variable "region" {
-  type        = string
-  description = "AWS Region"
-}
-
 variable "trigger_name" {
   type        = string
   description = "Glue trigger name. If not provided, the name will be constructed from the context."

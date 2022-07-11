@@ -1,8 +1,3 @@
-variable "region" {
-  type        = string
-  description = "AWS Region"
-}
-
 variable "workflow_name" {
   type        = string
   description = "Glue workflow name. If not provided, the name will be constructed from the context."

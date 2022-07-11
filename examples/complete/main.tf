@@ -17,5 +17,4 @@ module "workflow_example" {
   script_s3_prefix       = var.script_s3_prefix
   script_template        = var.script_template
   worker_type            = var.worker_type
-  region                 = var.region
 }
