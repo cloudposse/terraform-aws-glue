@@ -1,8 +1,3 @@
-variable "region" {
-  type        = string
-  description = "AWS Region"
-}
-
 variable "auto_scaling_enabled" {
   description = "Should autoscaling arguments be passed to glue jobs at execution time?"
   type        = bool

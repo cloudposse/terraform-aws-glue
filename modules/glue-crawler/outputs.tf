@@ -1,9 +1,9 @@
 output "id" {
-  description = "Trigger ID"
-  value       = local.enabled ? aws_glue_trigger.this[0].id : ""
+  description = "Crawler ID"
+  value       = local.enabled ? aws_glue_crawler.this[0].id : ""
 }
 
 output "arn" {
-  description = "Trigger ARN"
-  value       = local.enabled ? aws_glue_trigger.this[0].arn : ""
+  description = "Crawler ARN"
+  value       = local.enabled ? aws_glue_crawler.this[0].arn : ""
 }

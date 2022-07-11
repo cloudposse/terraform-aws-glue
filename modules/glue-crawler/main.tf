@@ -2,14 +2,14 @@ locals {
   enabled = module.this.enabled
 }
 
-resource "aws_glue_trigger" "this" {
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/glue_crawler
+resource "aws_glue_crawler" "this" {
   count = local.enabled ? 1 : 0
 
-  name          = module.this.id
-  workflow_name = var.workflow_name
-  type          = var.type
-  schedule      = var.schedule
-  enabled       = var.start_trigger
+  name          = coalesce(var.crawler_name, module.this.id)
+  description   = var.crawler_description
+  database_name = var.database_name
+  role          = var.role
 
   dynamic "predicate" {
     for_each = var.type == "CONDITIONAL" ? [1] : []

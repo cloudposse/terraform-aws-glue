@@ -1,8 +1,3 @@
-variable "region" {
-  type        = string
-  description = "AWS Region"
-}
-
 variable "database_instance" {
   description = "RDS database instance identifier used to derive connection information from SSM."
   type        = string
