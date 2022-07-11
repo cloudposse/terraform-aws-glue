@@ -45,6 +45,15 @@ variable "conditions" {
   default     = []
 }
 
+variable "event_batching_condition" {
+  type = object({
+    batch_size   = number
+    batch_window = number
+  })
+  description = "Batch condition that must be met (specified number of events received or batch time window expired) before EventBridge event trigger fires."
+  default     = null
+}
+
 variable "logical" {
   type        = string
   description = "How to handle multiple conditions. Defaults to `AND`. Valid values are `AND` or `ANY`."

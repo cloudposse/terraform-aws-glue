@@ -46,5 +46,14 @@ resource "aws_glue_trigger" "this" {
     }
   }
 
+  dynamic "event_batching_condition" {
+    for_each = var.event_batching_condition != null ? [true] : []
+
+    content {
+      batch_size   = var.event_batching_condition.batch_size
+      batch_window = try(var.event_batching_condition.batch_window, null)
+    }
+  }
+
   tags = module.this.tags
 }
