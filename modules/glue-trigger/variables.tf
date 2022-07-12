@@ -16,28 +16,46 @@ variable "workflow_name" {
   default     = null
 }
 
+variable "type" {
+  type        = string
+  description = "The type of trigger. Options are CONDITIONAL, SCHEDULED or ON_DEMAND."
+  default     = "CONDITIONAL"
+
+  validation {
+    condition     = contains(["CONDITIONAL", "SCHEDULE", "ON_DEMAND"], var.type)
+    error_message = "Supported options are CONDITIONAL, SCHEDULED or ON_DEMAND."
+  }
+}
+
 variable "actions" {
   type = list(object({
     job_name               = string
     crawler_name           = string
     arguments              = list(string)
     security_configuration = string
-    notification_property  = map(string)
-    timeout                = number
+    notification_property = object({
+      notify_delay_after = number
+    })
+    timeout = number
   }))
   description = "List of actions initiated by the trigger when it fires."
 }
 
-variable "conditions" {
-  type = list(object({
-    job_name         = string
-    crawler_name     = string
-    state            = string
-    crawl_state      = string
-    logical_operator = string
-  }))
-  description = "Conditions for activating the trigger. Required for triggers where type is `CONDITIONAL`."
-  default     = []
+variable "predicate" {
+  type = object({
+    # How to handle multiple conditions. Defaults to `AND`. Valid values are `AND` or `ANY`
+    logical = string
+    # Conditions for activating the trigger. Required for triggers where type is `CONDITIONAL`
+    conditions = list(object({
+      job_name         = string
+      crawler_name     = string
+      state            = string
+      crawl_state      = string
+      logical_operator = string
+    }))
+  })
+  description = "A predicate to specify when the new trigger should fire. Required when trigger type is `CONDITIONAL`."
+  default     = null
 }
 
 variable "event_batching_condition" {
@@ -49,37 +67,10 @@ variable "event_batching_condition" {
   default     = null
 }
 
-variable "logical" {
-  type        = string
-  description = "How to handle multiple conditions. Defaults to `AND`. Valid values are `AND` or `ANY`."
-  default     = "AND"
-
-  validation {
-    condition     = contains(["AND", "ANY"], var.logical)
-    error_message = "Supported values are AND and ANY."
-  }
-}
-
 variable "schedule" {
   type        = string
   description = "Cron formatted schedule. Required for triggers with type `SCHEDULED`."
   default     = null
-
-  validation {
-    condition     = can(regex("/(((\\d+,)+\\d+|(\\d+(\\/|-)\\d+)|\\d+|\\*) ?){5,7}/", var.schedule))
-    error_message = "The value must be a valid Cron expression."
-  }
-}
-
-variable "type" {
-  type        = string
-  description = "The type of trigger. Options are CONDITIONAL, SCHEDULED or ON_DEMAND."
-  default     = "CONDITIONAL"
-
-  validation {
-    condition     = contains(["CONDITIONAL", "SCHEDULE", "ON_DEMAND"], var.type)
-    error_message = "Supported options are CONDITIONAL, SCHEDULED or ON_DEMAND."
-  }
 }
 
 variable "trigger_enabled" {

@@ -15,10 +15,13 @@ resource "aws_glue_trigger" "this" {
   start_on_creation = var.type == "ON_DEMAND" ? false : var.start_on_creation
 
   dynamic "predicate" {
-    for_each = var.type == "CONDITIONAL" ? [1] : []
+    for_each = var.predicate != null ? [true] : []
+
     content {
+      logical = try(var.predicate.logical, null)
+
       dynamic "conditions" {
-        for_each = var.conditions
+        for_each = var.predicate.conditions
 
         content {
           job_name         = try(conditions.value.job_name, null)
@@ -28,8 +31,6 @@ resource "aws_glue_trigger" "this" {
           logical_operator = try(conditions.value.logical_operator, null)
         }
       }
-
-      logical = var.logical
     }
   }
 
@@ -41,8 +42,14 @@ resource "aws_glue_trigger" "this" {
       crawler_name           = try(actions.value.crawler_name, null)
       arguments              = try(actions.value.arguments, null)
       security_configuration = try(actions.value.security_configuration, null)
-      notification_property  = try(actions.value.notification_property, null)
       timeout                = try(actions.value.timeout, null)
+
+      dynamic "notification_property" {
+        for_each = try(actions.value.notification_property, null) != null ? [true] : []
+        content {
+          notify_delay_after = try(actions.value.notification_property.notify_delay_after, null)
+        }
+      }
     }
   }
 
