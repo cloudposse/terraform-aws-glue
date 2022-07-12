@@ -22,13 +22,8 @@ variable "role" {
 
 variable "schedule" {
   type        = string
-  description = "A cron expression used to specify the schedule."
+  description = "A cron expression for the schedule."
   default     = null
-
-  validation {
-    condition     = can(regex("/(((\\d+,)+\\d+|(\\d+(\\/|-)\\d+)|\\d+|\\*) ?){5,7}/", var.schedule))
-    error_message = "The value must be a valid Cron expression."
-  }
 }
 
 variable "classifiers" {
@@ -65,8 +60,8 @@ variable "dynamodb_target" {
 
 variable "s3_target" {
   type = list(object({
-    connection_name     = string
     path                = string
+    connection_name     = string
     exclusions          = list(string)
     sample_size         = number
     event_queue_arn     = string
@@ -91,7 +86,7 @@ variable "catalog_target" {
     database_name = string
     tables        = list(string)
   }))
-  description = "List nested MongoDB target arguments."
+  description = "List nested Glue catalog target arguments."
   default     = null
 }
 
@@ -101,7 +96,7 @@ variable "delta_target" {
     delta_tables    = list(string)
     write_manifest  = bool
   }))
-  description = "List nested MongoDB target arguments."
+  description = "List nested Delta target arguments."
   default     = null
 }
 
