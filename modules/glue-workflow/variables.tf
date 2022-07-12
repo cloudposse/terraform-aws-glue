@@ -11,13 +11,13 @@ variable "workflow_description" {
 }
 
 variable "default_run_properties" {
-  description = "A map of default run properties for this workflow. These properties are passed to all jobs associated to the workflow."
   type        = map(string)
-  default     = {}
+  description = "A map of default run properties for this workflow. These properties are passed to all jobs associated to the workflow."
+  default     = null
 }
 
 variable "max_concurrent_runs" {
-  description = "Maximum number of concurrent runs. If you leave this parameter blank, there is no limit to the number of concurrent workflow runs."
   type        = number
+  description = "Maximum number of concurrent runs. If you leave this parameter blank, there is no limit to the number of concurrent workflow runs."
   default     = null
 }
