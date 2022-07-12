@@ -50,10 +50,20 @@ references:
 # Short description of this project
 description: |-
   Terraform modules for provisioning and managing AWS [Glue](https://docs.aws.amazon.com/glue/latest/dg/what-is-glue.html) resources. 
-  For example, provisioning a Glue workflow with Glue job that runs on a cron schedule.
+  
+  The following Glue resources are supported:
+  
+    - Catalog database
+    - Catalog table
+    - Connection
+    - Crawler
+    - Job
+    - Registry
+    - Schema
+    - Trigger
+    - Workflow
 
-# Introduction to the project
-# introduction: |-
+  Refer to [modules](modules) for more details.
 
 # How to use this module. Should be an easy example to copy and paste.
 usage: |-
@@ -66,9 +76,6 @@ usage: |-
 examples: |-
   Here is an example of using this module:
   - [`examples/complete`](https://github.com/cloudposse/terraform-aws-glue/tree/master/examples/complete) - complete example of using this module
-
-# How to get started quickly
-# quickstart: |-
 
 # Other files to include in this README from the project folder
 include:

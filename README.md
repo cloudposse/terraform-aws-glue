@@ -29,7 +29,20 @@
 -->
 
 Terraform modules for provisioning and managing AWS [Glue](https://docs.aws.amazon.com/glue/latest/dg/what-is-glue.html) resources. 
-For example, provisioning a Glue workflow with Glue job that runs on a cron schedule.
+
+The following Glue resources are supported:
+
+  - Catalog database
+  - Catalog table
+  - Connection
+  - Crawler
+  - Job
+  - Registry
+  - Schema
+  - Trigger
+  - Workflow
+
+Refer to [modules](modules) for more details.
 
 ---
 
