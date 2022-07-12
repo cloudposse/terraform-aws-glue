@@ -28,8 +28,8 @@
 
 -->
 
-Terraform modules for provisioning and managing AWS Glue resources. For example, provisioning a Glue workflow with Glue job that 
-runs on a CRON schedule.
+Terraform modules for provisioning and managing AWS [Glue](https://docs.aws.amazon.com/glue/latest/dg/what-is-glue.html) resources. 
+For example, provisioning a Glue workflow with Glue job that runs on a cron schedule.
 
 ---
 
