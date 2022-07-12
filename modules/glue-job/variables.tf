@@ -87,7 +87,6 @@ variable "command" {
     python_version = number
   })
   description = "The command of the job."
-  default     = null
 }
 
 variable "execution_property" {
