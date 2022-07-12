@@ -29,8 +29,8 @@ variable "owner" {
 }
 
 variable "parameters" {
-  type        = list(map(string))
-  description = "Properties associated with this table, as a list of key-value pairs."
+  type        = map(string)
+  description = "Properties associated with this table, as a map of key-value pairs."
   default     = null
 }
 
