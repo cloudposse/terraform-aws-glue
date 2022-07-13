@@ -13,7 +13,6 @@ variable "catalog_table_description" {
 variable "database_name" {
   type        = string
   description = "Name of the metadata database where the table metadata resides."
-  default     = null
 }
 
 variable "catalog_id" {

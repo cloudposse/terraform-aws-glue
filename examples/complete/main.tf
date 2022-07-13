@@ -1,3 +1,8 @@
+locals {
+  role_arn                   = module.iam_role.arn
+  glue_catalog_database_name = module.glue_catalog_database.name
+}
+
 module "s3_bucket" {
   source  = "cloudposse/s3-bucket/aws"
   version = "2.0.3"
@@ -33,23 +38,54 @@ module "iam_role" {
   context = module.this.context
 }
 
-module "workflow_example" {
-  source = "../../modules/glue-workflow"
+# https://docs.aws.amazon.com/glue/latest/dg/populate-data-catalog.html
+module "glue_catalog_database" {
+  source = "../../modules/glue-catalog-database"
 
-  crawler_name           = var.crawler_name
-  cron_schedule          = var.cron_schedule
-  datalake_bucket        = var.datalake_bucket
-  datalake_format        = var.datalake_format
-  datalake_prefix        = var.datalake_prefix
-  glue_version           = var.glue_version
-  job_timeout            = var.job_timeout
-  max_concurrent_runs    = var.max_concurrent_runs
-  max_retries            = var.max_retries
-  number_of_workers      = var.number_of_workers
-  optimal_partition_size = var.optimal_partition_size
-  role_arn               = var.role_arn
-  script_s3_bucket       = var.script_s3_bucket
-  script_s3_prefix       = var.script_s3_prefix
-  script_template        = var.script_template
-  worker_type            = var.worker_type
+  catalog_database_description = "Test Glue Catalog database"
+
+  context = module.this.context
+}
+
+module "glue_catalog_table" {
+  source = "../../modules/glue-catalog-table"
+
+  catalog_table_description = "Test Glue Catalog table"
+  database_name             = local.glue_catalog_database_name
+
+  context = module.this.context
+}
+
+module "glue_crawler" {
+  source = "../../modules/glue-crawler"
+
+  crawler_description = "Glue crawler that takes inventory of the S3 data and adds metadata tables into the Data Catalog"
+  database_name       = local.glue_catalog_database_name
+  role                = local.role_arn
+  schedule            = "cron(0 1 * * ? *)"
+
+  schema_change_policy = {
+    delete_behavior = "LOG"
+  }
+
+  catalog_target = [
+    {
+      database_name = local.glue_catalog_database_name
+      tables        = [module.glue_catalog_table.name]
+    }
+  ]
+
+  configuration = jsonencode(
+    {
+      Grouping = {
+        TableGroupingPolicy = "CombineCompatibleSchemas"
+      }
+      CrawlerOutput = {
+        Partitions = { AddOrUpdateBehavior = "InheritFromTable" }
+      }
+      Version = 1
+    }
+  )
+
+  context = module.this.context
 }
