@@ -1,6 +1,6 @@
 variable "registry_name" {
   type        = string
-  description = "Glue registry name. If not provided, the name will be constructed from the context."
+  description = "Glue registry name. If not provided, the name will be generated from the context."
   default     = null
 }
 

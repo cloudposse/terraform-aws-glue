@@ -1,3 +1,38 @@
+module "s3_bucket" {
+  source  = "cloudposse/s3-bucket/aws"
+  version = "2.0.3"
+
+  acl                          = "private"
+  versioning_enabled           = false
+  force_destroy                = true
+  allow_encrypted_uploads_only = true
+  allow_ssl_requests_only      = true
+  block_public_acls            = true
+  block_public_policy          = true
+  ignore_public_acls           = true
+  restrict_public_buckets      = true
+
+  context = module.this.context
+}
+
+module "iam_role" {
+  source  = "cloudposse/iam-role/aws"
+  version = "0.16.2"
+
+  principals = {
+    "Service" : ["glue.amazonaws.com"]
+  }
+
+  managed_policy_arns = [
+    "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
+  ]
+
+  policy_description = "Policy for AWS Glue which allows access to related services including EC2, S3, and Cloudwatch Logs"
+  role_description   = "Role for AWS Glue which allows access to related services including EC2, S3, and Cloudwatch Logs"
+
+  context = module.this.context
+}
+
 module "workflow_example" {
   source = "../../modules/glue-workflow"
 
