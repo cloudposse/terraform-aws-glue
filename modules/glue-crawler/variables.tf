@@ -12,7 +12,7 @@ variable "crawler_description" {
 
 variable "database_name" {
   type        = string
-  description = "Glue database where results are written."
+  description = "Glue catalog database."
 }
 
 variable "role" {
@@ -34,7 +34,7 @@ variable "classifiers" {
 
 variable "configuration" {
   type        = string
-  description = "JSON string of configuration information. For more details see Setting Crawler Configuration Options."
+  description = "JSON string of configuration information."
   default     = null
 }
 

@@ -1,9 +1,11 @@
 locals {
+  s3_bucket_source_name      = module.s3_bucket_source.bucket_id
+  s3_bucket_destination_name = module.s3_bucket_destination.bucket_id
   role_arn                   = module.iam_role.arn
   glue_catalog_database_name = module.glue_catalog_database.name
 }
 
-module "s3_bucket" {
+module "s3_bucket_source" {
   source  = "cloudposse/s3-bucket/aws"
   version = "2.0.3"
 
@@ -17,7 +19,26 @@ module "s3_bucket" {
   ignore_public_acls           = true
   restrict_public_buckets      = true
 
-  context = module.this.context
+  attributes = ["source"]
+  context    = module.this.context
+}
+
+module "s3_bucket_destination" {
+  source  = "cloudposse/s3-bucket/aws"
+  version = "2.0.3"
+
+  acl                          = "private"
+  versioning_enabled           = false
+  force_destroy                = true
+  allow_encrypted_uploads_only = true
+  allow_ssl_requests_only      = true
+  block_public_acls            = true
+  block_public_policy          = true
+  ignore_public_acls           = true
+  restrict_public_buckets      = true
+
+  attributes = ["destination"]
+  context    = module.this.context
 }
 
 module "iam_role" {
@@ -42,7 +63,8 @@ module "iam_role" {
 module "glue_catalog_database" {
   source = "../../modules/glue-catalog-database"
 
-  catalog_database_description = "Test Glue Catalog database"
+  catalog_database_description = "Glue Catalog database with data located in S3 bucket"
+  location_uri                 = format("s3://%s", local.s3_bucket_source_name)
 
   context = module.this.context
 }
@@ -53,13 +75,76 @@ module "glue_catalog_table" {
   catalog_table_description = "Test Glue Catalog table"
   database_name             = local.glue_catalog_database_name
 
+  parameters = {
+    "lakeformation.aso.status" = true
+    "classification"           = "parquet"
+  }
+
+  storage_descriptor = {
+    # List of reducer grouping columns, clustering columns, and bucketing columns in the table
+    bucket_columns = null
+    # Configuration block for columns in the table
+    columns = [
+      {
+        name       = "county",
+        type       = "string",
+        comment    = ""
+        parameters = null
+      },
+      {
+        name       = "state",
+        type       = "string",
+        comment    = ""
+        parameters = null
+      },
+      {
+        name = "region",
+        type = "string",
+        comment : ""
+        parameters = null
+      }
+    ]
+    # Whether the data in the table is compressed
+    compressed = false
+    # Input format: SequenceFileInputFormat (binary), or TextInputFormat, or a custom format
+    input_format = "org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat"
+    # Physical location of the table. By default this takes the form of the warehouse location, followed by the database location in the warehouse, followed by the table name
+    location = format("s3://%s/data", local.s3_bucket_source_name)
+    #  Must be specified if the table contains any dimension columns
+    number_of_buckets = 0
+    # Output format: SequenceFileOutputFormat (binary), or IgnoreKeyTextOutputFormat, or a custom format
+    output_format = "org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat"
+    # User-supplied properties in key-value form
+    parameters = null
+    # Object that references a schema stored in the AWS Glue Schema Registry
+    # When creating a table, you can pass an empty list of columns for the schema, and instead use a schema reference
+    schema_reference = null
+    # Configuration block for serialization and deserialization ("SerDe") information
+    ser_de_info = {
+      # Name of the SerDe
+      name = null
+      # Map of initialization parameters for the SerDe, in key-value form
+      parameters = {
+        "serialization.format" : "1"
+      }
+      # Usually the class that implements the SerDe. An example is org.apache.hadoop.hive.serde2.columnar.ColumnarSerDe
+      serialization_library = "org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe"
+    }
+    # Configuration block with information about values that appear very frequently in a column (skewed values)
+    skewed_info = null
+    # Configuration block for the sort order of each bucket in the table
+    sort_columns = null
+    # Whether the table data is stored in subdirectories
+    stored_as_sub_directories = false
+  }
+
   context = module.this.context
 }
 
 module "glue_crawler" {
   source = "../../modules/glue-crawler"
 
-  crawler_description = "Glue crawler that takes inventory of the S3 data and adds metadata tables into the Data Catalog"
+  crawler_description = "Glue crawler that crawls data in a source S3 bucket and writes the result into the destination S3 bucket"
   database_name       = local.glue_catalog_database_name
   role                = local.role_arn
   schedule            = "cron(0 1 * * ? *)"
