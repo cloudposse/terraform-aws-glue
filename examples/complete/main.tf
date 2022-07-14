@@ -46,7 +46,7 @@ module "iam_role" {
   version = "0.16.2"
 
   principals = {
-    "Service" : ["glue.amazonaws.com"]
+    "Service" = ["glue.amazonaws.com"]
   }
 
   managed_policy_arns = [
@@ -98,9 +98,9 @@ module "glue_catalog_table" {
         parameters = null
       },
       {
-        name = "region",
-        type = "string",
-        comment : ""
+        name       = "region",
+        type       = "string",
+        comment    = ""
         parameters = null
       }
     ]
@@ -125,7 +125,7 @@ module "glue_catalog_table" {
       name = null
       # Map of initialization parameters for the SerDe, in key-value form
       parameters = {
-        "serialization.format" : "1"
+        "serialization.format" = "1"
       }
       # Usually the class that implements the SerDe. An example is org.apache.hadoop.hive.serde2.columnar.ColumnarSerDe
       serialization_library = "org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe"
@@ -144,19 +144,24 @@ module "glue_catalog_table" {
 module "glue_crawler" {
   source = "../../modules/glue-crawler"
 
-  crawler_description = "Glue crawler that crawls data in a source S3 bucket and writes the result into the destination S3 bucket"
+  crawler_description = "Glue crawler that processes data in the source S3 bucket and writes the result into the destination S3 bucket"
   database_name       = local.glue_catalog_database_name
   role                = local.role_arn
   schedule            = "cron(0 1 * * ? *)"
 
   schema_change_policy = {
     delete_behavior = "LOG"
+    update_behavior = null
   }
 
-  catalog_target = [
+  s3_target = [
     {
-      database_name = local.glue_catalog_database_name
-      tables        = [module.glue_catalog_table.name]
+      path                = format("s3://%s", local.s3_bucket_destination_name)
+      connection_name     = null
+      exclusions          = null
+      sample_size         = null
+      event_queue_arn     = null
+      dlq_event_queue_arn = null
     }
   ]
 
@@ -166,7 +171,9 @@ module "glue_crawler" {
         TableGroupingPolicy = "CombineCompatibleSchemas"
       }
       CrawlerOutput = {
-        Partitions = { AddOrUpdateBehavior = "InheritFromTable" }
+        Partitions = {
+          AddOrUpdateBehavior = "InheritFromTable"
+        }
       }
       Version = 1
     }

@@ -34,8 +34,8 @@ variable "location_uri" {
 }
 
 variable "parameters" {
-  type        = list(string)
-  description = "List of key-value pairs that define parameters and properties of the database."
+  type        = map(string)
+  description = "Map of key-value pairs that define parameters and properties of the database."
   default     = null
 }
 
