@@ -39,12 +39,6 @@ variable "non_overridable_arguments" {
   default     = null
 }
 
-variable "number_of_workers" {
-  type        = number
-  description = "The number of workers of a defined `worker_type` that are allocated when a job runs."
-  default     = null
-}
-
 variable "security_configuration" {
   type        = string
   description = "The name of the Security Configuration to be associated with the job."
@@ -72,6 +66,12 @@ variable "max_retries" {
 variable "worker_type" {
   type        = string
   description = "The type of predefined worker that is allocated when a job runs. Accepts a value of `Standard`, `G.1X`, or `G.2X`."
+  default     = null
+}
+
+variable "number_of_workers" {
+  type        = number
+  description = "The number of workers of a defined `worker_type` that are allocated when a job runs."
   default     = null
 }
 

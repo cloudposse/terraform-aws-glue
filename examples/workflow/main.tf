@@ -1,11 +1,9 @@
 locals {
-  s3_bucket_source_name      = module.s3_bucket_source.bucket_id
-  s3_bucket_destination_name = module.s3_bucket_destination.bucket_id
-  role_arn                   = module.iam_role.arn
-  glue_catalog_database_name = module.glue_catalog_database.name
+  s3_bucket_job_source_name = module.s3_bucket_job_source.bucket_id
+  role_arn                  = module.iam_role.arn
 }
 
-module "s3_bucket_source" {
+module "s3_bucket_job_source" {
   source  = "cloudposse/s3-bucket/aws"
   version = "2.0.3"
 
@@ -20,24 +18,6 @@ module "s3_bucket_source" {
   restrict_public_buckets      = true
 
   attributes = ["source"]
-  context    = module.this.context
-}
-
-module "s3_bucket_destination" {
-  source  = "cloudposse/s3-bucket/aws"
-  version = "2.0.3"
-
-  acl                          = "private"
-  versioning_enabled           = false
-  force_destroy                = true
-  allow_encrypted_uploads_only = true
-  allow_ssl_requests_only      = true
-  block_public_acls            = true
-  block_public_policy          = true
-  ignore_public_acls           = true
-  restrict_public_buckets      = true
-
-  attributes = ["destination"]
   context    = module.this.context
 }
 
@@ -59,125 +39,61 @@ module "iam_role" {
   context = module.this.context
 }
 
-# https://docs.aws.amazon.com/glue/latest/dg/populate-data-catalog.html
-module "glue_catalog_database" {
-  source = "../../modules/glue-catalog-database"
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/glue_workflow
+module "glue_workflow" {
+  source = "../../modules/glue-workflow"
 
-  catalog_database_description = "Glue Catalog database with data located in S3 bucket"
-  location_uri                 = format("s3://%s", local.s3_bucket_source_name)
+  workflow_description = "Test Glue Workflow"
+  max_concurrent_runs  = 2
 
   context = module.this.context
 }
 
-module "glue_catalog_table" {
-  source = "../../modules/glue-catalog-table"
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/glue_job
+module "glue_job" {
+  source = "../../modules/glue-job"
 
-  catalog_table_description = "Test Glue Catalog table"
-  database_name             = local.glue_catalog_database_name
+  job_description   = "Glue Job that runs a Python script"
+  role_arn          = local.role_arn
+  glue_version      = var.glue_version
+  worker_type       = "Standard"
+  number_of_workers = 1
+  max_retries       = 2
 
-  parameters = {
-    "lakeformation.aso.status" = true
-    "classification"           = "parquet"
-  }
+  # The job timeout in minutes
+  timeout = 20
 
-  storage_descriptor = {
-    # List of reducer grouping columns, clustering columns, and bucketing columns in the table
-    bucket_columns = null
-    # Configuration block for columns in the table
-    columns = [
-      {
-        name       = "county",
-        type       = "string",
-        comment    = ""
-        parameters = null
-      },
-      {
-        name       = "state",
-        type       = "string",
-        comment    = ""
-        parameters = null
-      },
-      {
-        name       = "region",
-        type       = "string",
-        comment    = ""
-        parameters = null
-      }
-    ]
-    # Whether the data in the table is compressed
-    compressed = false
-    # Input format: SequenceFileInputFormat (binary), or TextInputFormat, or a custom format
-    input_format = "org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat"
-    # Physical location of the table. By default this takes the form of the warehouse location, followed by the database location in the warehouse, followed by the table name
-    location = format("s3://%s/data", local.s3_bucket_source_name)
-    #  Must be specified if the table contains any dimension columns
-    number_of_buckets = 0
-    # Output format: SequenceFileOutputFormat (binary), or IgnoreKeyTextOutputFormat, or a custom format
-    output_format = "org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat"
-    # User-supplied properties in key-value form
-    parameters = null
-    # Object that references a schema stored in the AWS Glue Schema Registry
-    # When creating a table, you can pass an empty list of columns for the schema, and instead use a schema reference
-    schema_reference = null
-    # Configuration block for serialization and deserialization ("SerDe") information
-    ser_de_info = {
-      # Name of the SerDe
-      name = null
-      # Map of initialization parameters for the SerDe, in key-value form
-      parameters = {
-        "serialization.format" = "1"
-      }
-      # Usually the class that implements the SerDe. An example is org.apache.hadoop.hive.serde2.columnar.ColumnarSerDe
-      serialization_library = "org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe"
-    }
-    # Configuration block with information about values that appear very frequently in a column (skewed values)
-    skewed_info = null
-    # Configuration block for the sort order of each bucket in the table
-    sort_columns = null
-    # Whether the table data is stored in subdirectories
-    stored_as_sub_directories = false
+  command = {
+    name            = "Run Python script"
+    script_location = format("s3://%s/example.py", local.s3_bucket_job_source_name)
+    python_version  = 3
   }
 
   context = module.this.context
 }
 
-module "glue_crawler" {
-  source = "../../modules/glue-crawler"
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/glue_trigger
+module "glue_trigger" {
+  source = "../../modules/glue-trigger"
 
-  crawler_description = "Glue crawler that processes data in the source S3 bucket and writes the result into the destination S3 bucket"
-  database_name       = local.glue_catalog_database_name
-  role                = local.role_arn
-  schedule            = "cron(0 1 * * ? *)"
+  workflow_name       = module.glue_workflow.name
+  trigger_enabled     = true
+  start_on_creation   = true
+  trigger_description = "Glue Trigger that triggers a Glue Job on a schedule"
+  schedule            = "cron(15 12 * * ? *)"
+  type                = "SCHEDULED"
 
-  schema_change_policy = {
-    delete_behavior = "LOG"
-    update_behavior = null
-  }
-
-  s3_target = [
+  actions = [
     {
-      path                = format("s3://%s", local.s3_bucket_destination_name)
-      connection_name     = null
-      exclusions          = null
-      sample_size         = null
-      event_queue_arn     = null
-      dlq_event_queue_arn = null
+      job_name               = module.glue_job.name
+      crawler_name           = null
+      arguments              = null
+      security_configuration = null
+      notification_property  = null
+      # The job run timeout in minutes. It overrides the timeout value of the job
+      timeout = 10
     }
   ]
-
-  configuration = jsonencode(
-    {
-      Grouping = {
-        TableGroupingPolicy = "CombineCompatibleSchemas"
-      }
-      CrawlerOutput = {
-        Partitions = {
-          AddOrUpdateBehavior = "InheritFromTable"
-        }
-      }
-      Version = 1
-    }
-  )
 
   context = module.this.context
 }

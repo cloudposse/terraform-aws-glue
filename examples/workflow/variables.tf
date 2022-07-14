@@ -4,7 +4,7 @@ variable "region" {
 }
 
 variable "glue_version" {
-  description = "The version of glue to use"
   type        = string
+  description = "The version of glue to use"
   default     = "2.0"
 }
