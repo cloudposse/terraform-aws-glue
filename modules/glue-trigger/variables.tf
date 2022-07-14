@@ -22,7 +22,7 @@ variable "type" {
   default     = "CONDITIONAL"
 
   validation {
-    condition     = contains(["CONDITIONAL", "SCHEDULE", "ON_DEMAND"], var.type)
+    condition     = contains(["CONDITIONAL", "SCHEDULED", "ON_DEMAND"], var.type)
     error_message = "Supported options are CONDITIONAL, SCHEDULED or ON_DEMAND."
   }
 }
@@ -31,7 +31,7 @@ variable "actions" {
   type = list(object({
     job_name               = string
     crawler_name           = string
-    arguments              = list(string)
+    arguments              = map(string)
     security_configuration = string
     notification_property = object({
       notify_delay_after = number

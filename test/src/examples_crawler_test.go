@@ -1,7 +1,6 @@
 package test
 
 import (
-	"os"
 	"strings"
 	"testing"
 
@@ -11,19 +10,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func cleanup(t *testing.T, terraformOptions *terraform.Options, tempTestFolder string) {
-	terraform.Destroy(t, terraformOptions)
-	os.RemoveAll(tempTestFolder)
-}
-
-// Test the Terraform module in examples/complete using Terratest.
-func TestExamplesComplete(t *testing.T) {
+// Test the Terraform module in examples/crawler using Terratest.
+func TestExamplesCrawler(t *testing.T) {
 	t.Parallel()
 	randID := strings.ToLower(random.UniqueId())
 	attributes := []string{randID}
 
 	rootFolder := "../../"
-	terraformFolderRelativeToRoot := "examples/complete"
+	terraformFolderRelativeToRoot := "examples/crawler"
 	varFiles := []string{"fixtures.us-east-2.tfvars"}
 
 	tempTestFolder := testStructure.CopyTerraformFolderToTemp(t, rootFolder, terraformFolderRelativeToRoot)
@@ -45,58 +39,29 @@ func TestExamplesComplete(t *testing.T) {
 	// This will run `terraform init` and `terraform apply` and fail the test if there are any errors
 	terraform.InitAndApply(t, terraformOptions)
 
-	expectedExampleInput := "Hello, world!"
+	// Run `terraform output` to get the value of an output variable
+	catalogDatabaseName := terraform.Output(t, terraformOptions, "catalog_database_name")
+	// Verify we're getting back the outputs we expect
+	assert.Equal(t, "eg-ue2-test-glue-crawler-"+randID, catalogDatabaseName)
 
 	// Run `terraform output` to get the value of an output variable
-	id := terraform.Output(t, terraformOptions, "id")
-	example := terraform.Output(t, terraformOptions, "example")
-	random := terraform.Output(t, terraformOptions, "random")
-
+	catalogTableName := terraform.Output(t, terraformOptions, "catalog_table_name")
 	// Verify we're getting back the outputs we expect
-	// Ensure we get a random number appended
-	assert.Equal(t, expectedExampleInput+" "+random, example)
-	// Ensure we get the attribute included in the ID
-	assert.Equal(t, "eg-ue2-test-example-"+randID, id)
+	assert.Equal(t, "eg-ue2-test-glue-crawler-"+randID, catalogTableName)
 
-	// ************************************************************************
-	// This steps below are unusual, not generally part of the testing
-	// but included here as an example of testing this specific module.
-	// This module has a random number that is supposed to change
-	// only when the example changes. So we run it again to ensure
-	// it does not change.
-
-	// This will run `terraform apply` a second time and fail the test if there are any errors
-	terraform.Apply(t, terraformOptions)
-
-	id2 := terraform.Output(t, terraformOptions, "id")
-	example2 := terraform.Output(t, terraformOptions, "example")
-	random2 := terraform.Output(t, terraformOptions, "random")
-
-	assert.Equal(t, id, id2, "Expected `id` to be stable")
-	assert.Equal(t, example, example2, "Expected `example` to be stable")
-	assert.Equal(t, random, random2, "Expected `random` to be stable")
-
-	// Then we run change the example and run it a third time and
-	// verify that the random number changed
-	newExample := "Goodbye"
-	terraformOptions.Vars["example_input_override"] = newExample
-	terraform.Apply(t, terraformOptions)
-
-	example3 := terraform.Output(t, terraformOptions, "example")
-	random3 := terraform.Output(t, terraformOptions, "random")
-
-	assert.NotEqual(t, random, random3, "Expected `random` to change when `example` changed")
-	assert.Equal(t, newExample+" "+random3, example3, "Expected `example` to use new random number")
-
+	// Run `terraform output` to get the value of an output variable
+	crawlerName := terraform.Output(t, terraformOptions, "crawler_name")
+	// Verify we're getting back the outputs we expect
+	assert.Equal(t, "eg-ue2-test-glue-crawler-"+randID, crawlerName)
 }
 
-func TestExamplesCompleteDisabled(t *testing.T) {
+func TestExamplesCrawlerDisabled(t *testing.T) {
 	t.Parallel()
 	randID := strings.ToLower(random.UniqueId())
 	attributes := []string{randID}
 
 	rootFolder := "../../"
-	terraformFolderRelativeToRoot := "examples/complete"
+	terraformFolderRelativeToRoot := "examples/crawler"
 	varFiles := []string{"fixtures.us-east-2.tfvars"}
 
 	tempTestFolder := testStructure.CopyTerraformFolderToTemp(t, rootFolder, terraformFolderRelativeToRoot)

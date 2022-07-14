@@ -33,8 +33,9 @@ module "iam_role" {
     "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
   ]
 
-  policy_description = "Policy for AWS Glue which allows access to related services including EC2, S3, and Cloudwatch Logs"
-  role_description   = "Role for AWS Glue which allows access to related services including EC2, S3, and Cloudwatch Logs"
+  policy_document_count = 0
+  policy_description    = "Policy for AWS Glue with access to EC2, S3, and Cloudwatch Logs"
+  role_description      = "Role for AWS Glue with access to EC2, S3, and Cloudwatch Logs"
 
   context = module.this.context
 }
@@ -57,7 +58,7 @@ module "glue_job" {
   role_arn          = local.role_arn
   glue_version      = var.glue_version
   worker_type       = "Standard"
-  number_of_workers = 1
+  number_of_workers = 2
   max_retries       = 2
 
   # The job timeout in minutes
