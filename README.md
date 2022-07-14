@@ -78,18 +78,18 @@ It's 100% Open Source and licensed under the [APACHE2](LICENSE).
 
 
 
-For a complete example, see [examples/complete](examples/complete).
+For an example on how to provision source and destination S3 buckets, Glue Catalog Database and Table, and a Glue Crawler that processes 
+data in the source S3 bucket and writes the result into the destination S3 bucket, 
+see [examples/crawler](examples/crawler).
 
-For automated tests of the complete example using [bats](https://github.com/bats-core/bats-core) and [Terratest](https://github.com/gruntwork-io/terratest)
-(which tests and deploys the example on AWS), see [test](test).
+For an example on how to provision a Glue Workflow with Glue Jobs and Glue Triggers, 
+see [examples/workflow](examples/workflow).
+
+For automated tests of the examples using [bats](https://github.com/bats-core/bats-core) and [Terratest](https://github.com/gruntwork-io/terratest)
+(which tests and deploys the examples on AWS), see [test](test).
 
 
 
-
-## Examples
-
-Here is an example of using this module:
-- [`examples/complete`](https://github.com/cloudposse/terraform-aws-glue/tree/master/examples/complete) - complete example of using this module
 
 
 

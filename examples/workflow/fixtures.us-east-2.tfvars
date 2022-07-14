@@ -6,6 +6,6 @@ environment = "ue2"
 
 stage = "test"
 
-name = "glue"
+name = "glue-workflow"
 
 glue_version = "2.0"
