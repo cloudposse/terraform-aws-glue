@@ -87,22 +87,16 @@ module "glue_catalog_table" {
     # Configuration block for columns in the table
     columns = [
       {
-        name       = "county",
-        type       = "string",
-        comment    = ""
-        parameters = null
+        name = "county",
+        type = "string"
       },
       {
-        name       = "state",
-        type       = "string",
-        comment    = ""
-        parameters = null
+        name = "state",
+        type = "string"
       },
       {
-        name       = "region",
-        type       = "string",
-        comment    = ""
-        parameters = null
+        name = "region",
+        type = "string"
       }
     ]
     # Whether the data in the table is compressed
@@ -115,15 +109,8 @@ module "glue_catalog_table" {
     number_of_buckets = 0
     # Output format: SequenceFileOutputFormat (binary), or IgnoreKeyTextOutputFormat, or a custom format
     output_format = "org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat"
-    # User-supplied properties in key-value form
-    parameters = null
-    # Object that references a schema stored in the AWS Glue Schema Registry
-    # When creating a table, you can pass an empty list of columns for the schema, and instead use a schema reference
-    schema_reference = null
     # Configuration block for serialization and deserialization ("SerDe") information
     ser_de_info = {
-      # Name of the SerDe
-      name = null
       # Map of initialization parameters for the SerDe, in key-value form
       parameters = {
         "serialization.format" = "1"
@@ -131,10 +118,6 @@ module "glue_catalog_table" {
       # Usually the class that implements the SerDe. An example is org.apache.hadoop.hive.serde2.columnar.ColumnarSerDe
       serialization_library = "org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe"
     }
-    # Configuration block with information about values that appear very frequently in a column (skewed values)
-    skewed_info = null
-    # Configuration block for the sort order of each bucket in the table
-    sort_columns = null
     # Whether the table data is stored in subdirectories
     stored_as_sub_directories = false
   }
@@ -157,12 +140,7 @@ module "glue_crawler" {
 
   s3_target = [
     {
-      path                = format("s3://%s", local.s3_bucket_destination_name)
-      connection_name     = null
-      exclusions          = null
-      sample_size         = null
-      event_queue_arn     = null
-      dlq_event_queue_arn = null
+      path = format("s3://%s", local.s3_bucket_destination_name)
     }
   ]
 

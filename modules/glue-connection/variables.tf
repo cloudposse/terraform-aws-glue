@@ -17,8 +17,8 @@ variable "catalog_id" {
 }
 
 variable "connection_type" {
-  description = "The type of the connection. Supported are: JDBC, MONGODB, KAFKA, and NETWORK. Defaults to JBDC"
   type        = string
+  description = "The type of the connection. Supported are: JDBC, MONGODB, KAFKA, and NETWORK. Defaults to JBDC"
 
   validation {
     condition     = contains(["JDBC", "MONGODB", "KAFKA", "NETWORK"], var.connection_type)
@@ -39,14 +39,17 @@ variable "match_criteria" {
 }
 
 variable "physical_connection_requirements" {
-  type = object({
-    # The availability zone of the connection. This field is redundant and implied by subnet_id, but is currently an API requirement
-    availability_zone = string
-    # The security group ID list used by the connection
-    security_group_id_list = list(string)
-    #  The subnet ID used by the connection
-    subnet_id = string
-  })
+  #  type = object({
+  #    # The availability zone of the connection. This field is redundant and implied by subnet_id, but is currently an API requirement
+  #    availability_zone = string
+  #    # The security group ID list used by the connection
+  #    security_group_id_list = list(string)
+  #    #  The subnet ID used by the connection
+  #    subnet_id = string
+  #  })
+
+  # Using `type = any` since some of the the fields are optional and we don't want to force the caller to specify all of them and set to `null` those not used
+  type        = any
   description = "Physical connection requirements, such as VPC and SecurityGroup."
   default     = null
 }

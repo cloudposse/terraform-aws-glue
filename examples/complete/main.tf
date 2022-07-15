@@ -85,11 +85,7 @@ module "glue_trigger" {
 
   actions = [
     {
-      job_name               = module.glue_job.name
-      crawler_name           = null
-      arguments              = null
-      security_configuration = null
-      notification_property  = null
+      job_name = module.glue_job.name
       # The job run timeout in minutes. It overrides the timeout value of the job
       timeout = 10
     }

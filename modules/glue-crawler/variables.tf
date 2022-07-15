@@ -39,44 +39,56 @@ variable "configuration" {
 }
 
 variable "jdbc_target" {
-  type = list(object({
-    connection_name = string
-    path            = string
-    exclusions      = list(string)
-  }))
+  #  type = list(object({
+  #    connection_name = string
+  #    path            = string
+  #    exclusions      = list(string)
+  #  }))
+
+  # Using `type = list(any)` since some of the the fields are optional and we don't want to force the caller to specify all of them and set to `null` those not used
+  type        = list(any)
   description = "List of nested JBDC target arguments."
   default     = null
 }
 
 variable "dynamodb_target" {
-  type = list(object({
-    path      = string
-    scan_all  = bool
-    scan_rate = number
-  }))
+  #  type = list(object({
+  #    path      = string
+  #    scan_all  = bool
+  #    scan_rate = number
+  #  }))
+
+  # Using `type = list(any)` since some of the the fields are optional and we don't want to force the caller to specify all of them and set to `null` those not used
+  type        = list(any)
   description = "List of nested DynamoDB target arguments."
   default     = null
 }
 
 variable "s3_target" {
-  type = list(object({
-    path                = string
-    connection_name     = string
-    exclusions          = list(string)
-    sample_size         = number
-    event_queue_arn     = string
-    dlq_event_queue_arn = string
-  }))
+  #  type = list(object({
+  #    path                = string
+  #    connection_name     = string
+  #    exclusions          = list(string)
+  #    sample_size         = number
+  #    event_queue_arn     = string
+  #    dlq_event_queue_arn = string
+  #  }))
+
+  # Using `type = list(any)` since some of the the fields are optional and we don't want to force the caller to specify all of them and set to `null` those not used
+  type        = list(any)
   description = "List nested Amazon S3 target arguments."
   default     = null
 }
 
 variable "mongodb_target" {
-  type = list(object({
-    connection_name = string
-    path            = string
-    scan_all        = bool
-  }))
+  #  type = list(object({
+  #    connection_name = string
+  #    path            = string
+  #    scan_all        = bool
+  #  }))
+
+  # Using `type = list(any)` since some of the the fields are optional and we don't want to force the caller to specify all of them and set to `null` those not used
+  type        = list(any)
   description = "List nested MongoDB target arguments."
   default     = null
 }
@@ -113,10 +125,13 @@ variable "security_configuration" {
 }
 
 variable "schema_change_policy" {
-  type = object({
-    delete_behavior = string
-    update_behavior = string
-  })
+  #  type = object({
+  #    delete_behavior = string
+  #    update_behavior = string
+  #  })
+
+  # Using `type = map(string)` since some of the the fields are optional and we don't want to force the caller to specify all of them and set to `null` those not used
+  type        = map(string)
   description = "Policy for the crawler's update and deletion behavior."
   default     = null
 }

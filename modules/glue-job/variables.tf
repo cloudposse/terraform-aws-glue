@@ -76,16 +76,19 @@ variable "number_of_workers" {
 }
 
 variable "command" {
-  type = object({
-    # The name of the job command. Defaults to glueetl.
-    # Use `pythonshell` for Python Shell Job Type, or `gluestreaming` for Streaming Job Type.
-    # `max_capacity` needs to be set if `pythonshell` is chosen
-    name = string
-    # Specifies the S3 path to a script that executes the job
-    script_location = string
-    # The Python version being used to execute a Python shell job. Allowed values are 2 or 3
-    python_version = number
-  })
+  #  type = object({
+  #    # The name of the job command. Defaults to glueetl.
+  #    # Use `pythonshell` for Python Shell Job Type, or `gluestreaming` for Streaming Job Type.
+  #    # `max_capacity` needs to be set if `pythonshell` is chosen
+  #    name = string
+  #    # Specifies the S3 path to a script that executes the job
+  #    script_location = string
+  #    # The Python version being used to execute a Python shell job. Allowed values are 2 or 3
+  #    python_version = number
+  #  })
+
+  # Using `type = map(any)` since some of the the fields are optional and we don't want to force the caller to specify all of them and set to `null` those not used
+  type        = map(any)
   description = "The command of the job."
 }
 

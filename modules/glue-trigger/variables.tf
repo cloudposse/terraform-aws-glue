@@ -28,41 +28,50 @@ variable "type" {
 }
 
 variable "actions" {
-  type = list(object({
-    job_name               = string
-    crawler_name           = string
-    arguments              = map(string)
-    security_configuration = string
-    notification_property = object({
-      notify_delay_after = number
-    })
-    timeout = number
-  }))
+  #  type = list(object({
+  #    job_name               = string
+  #    crawler_name           = string
+  #    arguments              = map(string)
+  #    security_configuration = string
+  #    notification_property = object({
+  #      notify_delay_after = number
+  #    })
+  #    timeout = number
+  #  }))
+
+  # Using `type = list(any)` since some of the the fields are optional and we don't want to force the caller to specify all of them and set to `null` those not used
+  type        = list(any)
   description = "List of actions initiated by the trigger when it fires."
 }
 
 variable "predicate" {
-  type = object({
-    # How to handle multiple conditions. Defaults to `AND`. Valid values are `AND` or `ANY`
-    logical = string
-    # Conditions for activating the trigger. Required for triggers where type is `CONDITIONAL`
-    conditions = list(object({
-      job_name         = string
-      crawler_name     = string
-      state            = string
-      crawl_state      = string
-      logical_operator = string
-    }))
-  })
+  #  type = object({
+  #    # How to handle multiple conditions. Defaults to `AND`. Valid values are `AND` or `ANY`
+  #    logical = string
+  #    # Conditions for activating the trigger. Required for triggers where type is `CONDITIONAL`
+  #    conditions = list(object({
+  #      job_name         = string
+  #      crawler_name     = string
+  #      state            = string
+  #      crawl_state      = string
+  #      logical_operator = string
+  #    }))
+  #  })
+
+  # Using `type = any` since some of the the fields are optional and we don't want to force the caller to specify all of them and set to `null` those not used
+  type        = any
   description = "A predicate to specify when the new trigger should fire. Required when trigger type is `CONDITIONAL`."
   default     = null
 }
 
 variable "event_batching_condition" {
-  type = object({
-    batch_size   = number
-    batch_window = number
-  })
+  #  type = object({
+  #    batch_size   = number
+  #    batch_window = number
+  #  })
+
+  # Using `type = map(number)` since some of the the fields are optional and we don't want to force the caller to specify all of them and set to `null` those not used
+  type        = map(number)
   description = "Batch condition that must be met (specified number of events received or batch time window expired) before EventBridge event trigger fires."
   default     = null
 }

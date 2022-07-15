@@ -17,12 +17,14 @@ variable "catalog_id" {
 }
 
 variable "create_table_default_permission" {
-  type = object({
-    permissions = list(string)
-    principal = object({
-      data_lake_principal_identifier = string
-    })
-  })
+  #  type = object({
+  #    permissions = list(string)
+  #    principal = object({
+  #      data_lake_principal_identifier = string
+  #    })
+  #  })
+  # Using `type = any` since some of the the fields are optional and we don't want to force the caller to specify all of them and set to `null` those not used
+  type        = any
   description = "Creates a set of default permissions on the table for principals."
   default     = null
 }
@@ -41,6 +43,7 @@ variable "parameters" {
 
 variable "target_database" {
   type = object({
+    # If `target_database` is provided (not `null`), all these fields are required
     catalog_id    = string
     database_name = string
   })
