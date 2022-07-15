@@ -131,8 +131,9 @@ locals {
 }
 
 module "s3_bucket_job_source" {
-  source  = "cloudposse/s3-bucket/aws"
-  version = "2.0.3"
+  source = "cloudposse/s3-bucket/aws"
+  # Cloud Posse recommends pinning every module to a specific version
+  # version = "x.x.x"
 
   acl                          = "private"
   versioning_enabled           = false
@@ -148,8 +149,9 @@ module "s3_bucket_job_source" {
 }
 
 module "iam_role" {
-  source  = "cloudposse/iam-role/aws"
-  version = "0.16.2"
+  source = "cloudposse/iam-role/aws"
+  # Cloud Posse recommends pinning every module to a specific version
+  # version = "x.x.x"
 
   principals = {
     "Service" = ["glue.amazonaws.com"]
@@ -168,7 +170,8 @@ module "iam_role" {
 
 module "glue_workflow" {
   source = "cloudposse/glue/aws//modules/glue-workflow"
-  # version     = "x.x.x"
+  # Cloud Posse recommends pinning every module to a specific version
+  # version = "x.x.x"
 
   workflow_description = "Test Glue Workflow"
   max_concurrent_runs  = 2
@@ -178,7 +181,8 @@ module "glue_workflow" {
 
 module "glue_job" {
   source = "cloudposse/glue/aws//modules/glue-job"
-  # version     = "x.x.x"
+  # Cloud Posse recommends pinning every module to a specific version
+  # version = "x.x.x"
 
   job_description   = "Glue Job that runs a Python script"
   role_arn          = local.role_arn
@@ -200,7 +204,8 @@ module "glue_job" {
 
 module "glue_trigger" {
   source = "cloudposse/glue/aws//modules/glue-trigger"
-  # version     = "x.x.x"
+  # Cloud Posse recommends pinning every module to a specific version
+  # version = "x.x.x"
 
   workflow_name       = module.glue_workflow.name
   trigger_enabled     = true
