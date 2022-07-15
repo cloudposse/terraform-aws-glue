@@ -26,4 +26,5 @@ docker/test:
 .PHONY : clean
 ## Clean up files
 clean:
-	rm -rf ../../examples/complete/*.tfstate*
+	rm -rf ../../examples/crawler/*.tfstate*
+	rm -rf ../../examples/workflow/*.tfstate*

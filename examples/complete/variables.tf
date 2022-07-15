@@ -1,14 +1,10 @@
 variable "region" {
-  type = string
+  type        = string
+  description = "AWS Region"
 }
 
-variable "example_input" {
+variable "glue_version" {
   type        = string
-  description = "The value which will be passed to the example module"
-}
-
-variable "example_input_override" {
-  type        = string
-  default     = null
-  description = "Override for `example_input`"
+  description = "The version of glue to use"
+  default     = "2.0"
 }
