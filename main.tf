@@ -54,6 +54,7 @@ module "glue_job" {
   job_description   = "Glue Job that runs a Python script"
   role_arn          = local.role_arn
   worker_type       = "Standard"
+  glue_version      = var.glue_version
   number_of_workers = 2
   max_retries       = 2
 
