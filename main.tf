@@ -39,9 +39,8 @@ module "iam_role" {
   context = module.this.context
 }
 
-# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/glue_workflow
 module "glue_workflow" {
-  source = "../../modules/glue-workflow"
+  source = "./modules/glue-workflow"
 
   workflow_description = "Test Glue Workflow"
   max_concurrent_runs  = 2
@@ -49,13 +48,11 @@ module "glue_workflow" {
   context = module.this.context
 }
 
-# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/glue_job
 module "glue_job" {
-  source = "../../modules/glue-job"
+  source = "./modules/glue-job"
 
   job_description   = "Glue Job that runs a Python script"
   role_arn          = local.role_arn
-  glue_version      = var.glue_version
   worker_type       = "Standard"
   number_of_workers = 2
   max_retries       = 2
@@ -72,9 +69,8 @@ module "glue_job" {
   context = module.this.context
 }
 
-# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/glue_trigger
 module "glue_trigger" {
-  source = "../../modules/glue-trigger"
+  source = "./modules/glue-trigger"
 
   workflow_name       = module.glue_workflow.name
   trigger_enabled     = true

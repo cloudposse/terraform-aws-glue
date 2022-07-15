@@ -55,6 +55,8 @@ This project is part of our comprehensive ["SweetOps"](https://cpco.io/sweetops)
 [<img align="right" title="Share on Twitter" src="https://docs.cloudposse.com/images/ionicons/social-twitter-outline-2.0.1-16x16-999999.svg" />][share_twitter]
 
 
+[![Terraform Open Source Modules](https://docs.cloudposse.com/images/terraform-open-source-modules.svg)][terraform_modules]
+
 
 
 It's 100% Open Source and licensed under the [APACHE2](LICENSE).
@@ -65,17 +67,44 @@ It's 100% Open Source and licensed under the [APACHE2](LICENSE).
 
 
 
+We literally have [*hundreds of terraform modules*][terraform_modules] that are Open Source and well-maintained. Check them out!
 
 
 
 
 
 
+## Security & Compliance [<img src="https://cloudposse.com/wp-content/uploads/2020/11/bridgecrew.svg" width="250" align="right" />](https://bridgecrew.io/)
+
+Security scanning is graciously provided by Bridgecrew. Bridgecrew is the leading fully hosted, cloud-native solution providing continuous Terraform security and compliance.
+
+| Benchmark | Description |
+|--------|---------------|
+| [![Infrastructure Security](https://www.bridgecrew.cloud/badges/github/cloudposse/terraform-aws-glue/general)](https://www.bridgecrew.cloud/link/badge?vcs=github&fullRepo=cloudposse%2Fterraform-aws-glue&benchmark=INFRASTRUCTURE+SECURITY) | Infrastructure Security Compliance |
+| [![CIS KUBERNETES](https://www.bridgecrew.cloud/badges/github/cloudposse/terraform-aws-glue/cis_kubernetes)](https://www.bridgecrew.cloud/link/badge?vcs=github&fullRepo=cloudposse%2Fterraform-aws-glue&benchmark=CIS+KUBERNETES+V1.5) | Center for Internet Security, KUBERNETES Compliance |
+| [![CIS AWS](https://www.bridgecrew.cloud/badges/github/cloudposse/terraform-aws-glue/cis_aws)](https://www.bridgecrew.cloud/link/badge?vcs=github&fullRepo=cloudposse%2Fterraform-aws-glue&benchmark=CIS+AWS+V1.2) | Center for Internet Security, AWS Compliance |
+| [![CIS AZURE](https://www.bridgecrew.cloud/badges/github/cloudposse/terraform-aws-glue/cis_azure)](https://www.bridgecrew.cloud/link/badge?vcs=github&fullRepo=cloudposse%2Fterraform-aws-glue&benchmark=CIS+AZURE+V1.1) | Center for Internet Security, AZURE Compliance |
+| [![PCI-DSS](https://www.bridgecrew.cloud/badges/github/cloudposse/terraform-aws-glue/pci)](https://www.bridgecrew.cloud/link/badge?vcs=github&fullRepo=cloudposse%2Fterraform-aws-glue&benchmark=PCI-DSS+V3.2) | Payment Card Industry Data Security Standards Compliance |
+| [![NIST-800-53](https://www.bridgecrew.cloud/badges/github/cloudposse/terraform-aws-glue/nist)](https://www.bridgecrew.cloud/link/badge?vcs=github&fullRepo=cloudposse%2Fterraform-aws-glue&benchmark=NIST-800-53) | National Institute of Standards and Technology Compliance |
+| [![ISO27001](https://www.bridgecrew.cloud/badges/github/cloudposse/terraform-aws-glue/iso)](https://www.bridgecrew.cloud/link/badge?vcs=github&fullRepo=cloudposse%2Fterraform-aws-glue&benchmark=ISO27001) | Information Security Management System, ISO/IEC 27001 Compliance |
+| [![SOC2](https://www.bridgecrew.cloud/badges/github/cloudposse/terraform-aws-glue/soc2)](https://www.bridgecrew.cloud/link/badge?vcs=github&fullRepo=cloudposse%2Fterraform-aws-glue&benchmark=SOC2)| Service Organization Control 2 Compliance |
+| [![CIS GCP](https://www.bridgecrew.cloud/badges/github/cloudposse/terraform-aws-glue/cis_gcp)](https://www.bridgecrew.cloud/link/badge?vcs=github&fullRepo=cloudposse%2Fterraform-aws-glue&benchmark=CIS+GCP+V1.1) | Center for Internet Security, GCP Compliance |
+| [![HIPAA](https://www.bridgecrew.cloud/badges/github/cloudposse/terraform-aws-glue/hipaa)](https://www.bridgecrew.cloud/link/badge?vcs=github&fullRepo=cloudposse%2Fterraform-aws-glue&benchmark=HIPAA) | Health Insurance Portability and Accountability Compliance |
 
 
 
 ## Usage
 
+
+**IMPORTANT:** We do not pin modules to versions in our examples because of the
+difficulty of keeping the versions in the documentation in sync with the latest released versions.
+We highly recommend that in your code you pin the version to the exact version you are
+using so that your infrastructure remains stable, and update versions in a
+systematic way so that they do not catch you by surprise.
+
+Also, because of a bug in the Terraform registry ([hashicorp/terraform#21417](https://github.com/hashicorp/terraform/issues/21417)),
+the registry shows many of our inputs as required when in fact they are optional.
+The table below correctly indicates which inputs are required.
 
 
 For an example on how to provision source and destination S3 buckets, Glue Catalog Database and Table, and a Glue Crawler that processes 
@@ -90,6 +119,111 @@ For automated tests of the examples using [bats](https://github.com/bats-core/ba
 
 
 
+
+## Examples
+
+
+```hcl
+
+locals {
+  s3_bucket_job_source_name = module.s3_bucket_job_source.bucket_id
+  role_arn                  = module.iam_role.arn
+}
+
+module "s3_bucket_job_source" {
+  source  = "cloudposse/s3-bucket/aws"
+  version = "2.0.3"
+
+  acl                          = "private"
+  versioning_enabled           = false
+  force_destroy                = true
+  allow_encrypted_uploads_only = true
+  allow_ssl_requests_only      = true
+  block_public_acls            = true
+  block_public_policy          = true
+  ignore_public_acls           = true
+  restrict_public_buckets      = true
+
+  context    = module.this.context
+}
+
+module "iam_role" {
+  source  = "cloudposse/iam-role/aws"
+  version = "0.16.2"
+
+  principals = {
+    "Service" = ["glue.amazonaws.com"]
+  }
+
+  managed_policy_arns = [
+    "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
+  ]
+
+  policy_document_count = 0
+  policy_description    = "Policy for AWS Glue with access to EC2, S3, and Cloudwatch Logs"
+  role_description      = "Role for AWS Glue with access to EC2, S3, and Cloudwatch Logs"
+
+  context = module.this.context
+}
+
+module "glue_workflow" {
+  source = "cloudposse/glue/aws//modules/glue-workflow"
+  # version     = "x.x.x"
+
+  workflow_description = "Test Glue Workflow"
+  max_concurrent_runs  = 2
+
+  context = module.this.context
+}
+
+module "glue_job" {
+  source = "cloudposse/glue/aws//modules/glue-job"
+  # version     = "x.x.x"
+
+  job_description   = "Glue Job that runs a Python script"
+  role_arn          = local.role_arn
+  worker_type       = "Standard"
+  number_of_workers = 2
+  max_retries       = 2
+
+  # The job timeout in minutes
+  timeout = 20
+
+  command = {
+    name            = "Run Python script"
+    script_location = format("s3://%s/example.py", local.s3_bucket_job_source_name)
+    python_version  = 3
+  }
+
+  context = module.this.context
+}
+
+module "glue_trigger" {
+  source = "cloudposse/glue/aws//modules/glue-trigger"
+  # version     = "x.x.x"
+
+  workflow_name       = module.glue_workflow.name
+  trigger_enabled     = true
+  start_on_creation   = true
+  trigger_description = "Glue Trigger that triggers a Glue Job on a schedule"
+  schedule            = "cron(15 12 * * ? *)"
+  type                = "SCHEDULED"
+
+  actions = [
+    {
+      job_name               = module.glue_job.name
+      crawler_name           = null
+      arguments              = null
+      security_configuration = null
+      notification_property  = null
+      # The job run timeout in minutes. It overrides the timeout value of the job
+      timeout = 10
+    }
+  ]
+
+  context = module.this.context
+}
+```
 
 
 
@@ -116,7 +250,14 @@ No providers.
 
 ## Modules
 
-No modules.
+| Name | Source | Version |
+|------|--------|---------|
+| <a name="module_glue_job"></a> [glue\_job](#module\_glue\_job) | ./modules/glue-job | n/a |
+| <a name="module_glue_trigger"></a> [glue\_trigger](#module\_glue\_trigger) | ./modules/glue-trigger | n/a |
+| <a name="module_glue_workflow"></a> [glue\_workflow](#module\_glue\_workflow) | ./modules/glue-workflow | n/a |
+| <a name="module_iam_role"></a> [iam\_role](#module\_iam\_role) | cloudposse/iam-role/aws | 0.16.2 |
+| <a name="module_s3_bucket_job_source"></a> [s3\_bucket\_job\_source](#module\_s3\_bucket\_job\_source) | cloudposse/s3-bucket/aws | 2.0.3 |
+| <a name="module_this"></a> [this](#module\_this) | cloudposse/label/null | 0.25.0 |
 
 ## Resources
 
@@ -124,11 +265,40 @@ No resources.
 
 ## Inputs
 
-No inputs.
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_additional_tag_map"></a> [additional\_tag\_map](#input\_additional\_tag\_map) | Additional key-value pairs to add to each map in `tags_as_list_of_maps`. Not added to `tags` or `id`.<br>This is for some rare cases where resources want additional configuration of tags<br>and therefore take a list of maps with tag key, value, and additional configuration. | `map(string)` | `{}` | no |
+| <a name="input_attributes"></a> [attributes](#input\_attributes) | ID element. Additional attributes (e.g. `workers` or `cluster`) to add to `id`,<br>in the order they appear in the list. New attributes are appended to the<br>end of the list. The elements of the list are joined by the `delimiter`<br>and treated as a single ID element. | `list(string)` | `[]` | no |
+| <a name="input_context"></a> [context](#input\_context) | Single object for setting entire context at once.<br>See description of individual variables for details.<br>Leave string and numeric variables as `null` to use default value.<br>Individual variable settings (non-null) override settings in context object,<br>except for attributes, tags, and additional\_tag\_map, which are merged. | `any` | <pre>{<br>  "additional_tag_map": {},<br>  "attributes": [],<br>  "delimiter": null,<br>  "descriptor_formats": {},<br>  "enabled": true,<br>  "environment": null,<br>  "id_length_limit": null,<br>  "label_key_case": null,<br>  "label_order": [],<br>  "label_value_case": null,<br>  "labels_as_tags": [<br>    "unset"<br>  ],<br>  "name": null,<br>  "namespace": null,<br>  "regex_replace_chars": null,<br>  "stage": null,<br>  "tags": {},<br>  "tenant": null<br>}</pre> | no |
+| <a name="input_delimiter"></a> [delimiter](#input\_delimiter) | Delimiter to be used between ID elements.<br>Defaults to `-` (hyphen). Set to `""` to use no delimiter at all. | `string` | `null` | no |
+| <a name="input_descriptor_formats"></a> [descriptor\_formats](#input\_descriptor\_formats) | Describe additional descriptors to be output in the `descriptors` output map.<br>Map of maps. Keys are names of descriptors. Values are maps of the form<br>`{<br>   format = string<br>   labels = list(string)<br>}`<br>(Type is `any` so the map values can later be enhanced to provide additional options.)<br>`format` is a Terraform format string to be passed to the `format()` function.<br>`labels` is a list of labels, in order, to pass to `format()` function.<br>Label values will be normalized before being passed to `format()` so they will be<br>identical to how they appear in `id`.<br>Default is `{}` (`descriptors` output will be empty). | `any` | `{}` | no |
+| <a name="input_enabled"></a> [enabled](#input\_enabled) | Set to false to prevent the module from creating any resources | `bool` | `null` | no |
+| <a name="input_environment"></a> [environment](#input\_environment) | ID element. Usually used for region e.g. 'uw2', 'us-west-2', OR role 'prod', 'staging', 'dev', 'UAT' | `string` | `null` | no |
+| <a name="input_id_length_limit"></a> [id\_length\_limit](#input\_id\_length\_limit) | Limit `id` to this many characters (minimum 6).<br>Set to `0` for unlimited length.<br>Set to `null` for keep the existing setting, which defaults to `0`.<br>Does not affect `id_full`. | `number` | `null` | no |
+| <a name="input_label_key_case"></a> [label\_key\_case](#input\_label\_key\_case) | Controls the letter case of the `tags` keys (label names) for tags generated by this module.<br>Does not affect keys of tags passed in via the `tags` input.<br>Possible values: `lower`, `title`, `upper`.<br>Default value: `title`. | `string` | `null` | no |
+| <a name="input_label_order"></a> [label\_order](#input\_label\_order) | The order in which the labels (ID elements) appear in the `id`.<br>Defaults to ["namespace", "environment", "stage", "name", "attributes"].<br>You can omit any of the 6 labels ("tenant" is the 6th), but at least one must be present. | `list(string)` | `null` | no |
+| <a name="input_label_value_case"></a> [label\_value\_case](#input\_label\_value\_case) | Controls the letter case of ID elements (labels) as included in `id`,<br>set as tag values, and output by this module individually.<br>Does not affect values of tags passed in via the `tags` input.<br>Possible values: `lower`, `title`, `upper` and `none` (no transformation).<br>Set this to `title` and set `delimiter` to `""` to yield Pascal Case IDs.<br>Default value: `lower`. | `string` | `null` | no |
+| <a name="input_labels_as_tags"></a> [labels\_as\_tags](#input\_labels\_as\_tags) | Set of labels (ID elements) to include as tags in the `tags` output.<br>Default is to include all labels.<br>Tags with empty values will not be included in the `tags` output.<br>Set to `[]` to suppress all generated tags.<br>**Notes:**<br>  The value of the `name` tag, if included, will be the `id`, not the `name`.<br>  Unlike other `null-label` inputs, the initial setting of `labels_as_tags` cannot be<br>  changed in later chained modules. Attempts to change it will be silently ignored. | `set(string)` | <pre>[<br>  "default"<br>]</pre> | no |
+| <a name="input_name"></a> [name](#input\_name) | ID element. Usually the component or solution name, e.g. 'app' or 'jenkins'.<br>This is the only ID element not also included as a `tag`.<br>The "name" tag is set to the full `id` string. There is no tag with the value of the `name` input. | `string` | `null` | no |
+| <a name="input_namespace"></a> [namespace](#input\_namespace) | ID element. Usually an abbreviation of your organization name, e.g. 'eg' or 'cp', to help ensure generated IDs are globally unique | `string` | `null` | no |
+| <a name="input_regex_replace_chars"></a> [regex\_replace\_chars](#input\_regex\_replace\_chars) | Terraform regular expression (regex) string.<br>Characters matching the regex will be removed from the ID elements.<br>If not set, `"/[^a-zA-Z0-9-]/"` is used to remove all characters other than hyphens, letters and digits. | `string` | `null` | no |
+| <a name="input_stage"></a> [stage](#input\_stage) | ID element. Usually used to indicate role, e.g. 'prod', 'staging', 'source', 'build', 'test', 'deploy', 'release' | `string` | `null` | no |
+| <a name="input_tags"></a> [tags](#input\_tags) | Additional tags (e.g. `{'BusinessUnit': 'XYZ'}`).<br>Neither the tag keys nor the tag values will be modified by this module. | `map(string)` | `{}` | no |
+| <a name="input_tenant"></a> [tenant](#input\_tenant) | ID element \_(Rarely used, not included by default)\_. A customer identifier, indicating who this instance of a resource is for | `string` | `null` | no |
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+|------|-------------|
+| <a name="output_job_arn"></a> [job\_arn](#output\_job\_arn) | Glue job ARN |
+| <a name="output_job_id"></a> [job\_id](#output\_job\_id) | Glue job ID |
+| <a name="output_job_name"></a> [job\_name](#output\_job\_name) | Glue job name |
+| <a name="output_trigger_arn"></a> [trigger\_arn](#output\_trigger\_arn) | Glue trigger ARN |
+| <a name="output_trigger_id"></a> [trigger\_id](#output\_trigger\_id) | Glue trigger ID |
+| <a name="output_trigger_name"></a> [trigger\_name](#output\_trigger\_name) | Glue trigger name |
+| <a name="output_workflow_arn"></a> [workflow\_arn](#output\_workflow\_arn) | Glue workflow ARN |
+| <a name="output_workflow_id"></a> [workflow\_id](#output\_workflow\_id) | Glue workflow ID |
+| <a name="output_workflow_name"></a> [workflow\_name](#output\_workflow\_name) | Glue workflow name |
 <!-- markdownlint-restore -->
 
 

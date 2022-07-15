@@ -65,7 +65,7 @@ description: |-
 
   Refer to [modules](modules) for more details.
 
-# How to use this module. Should be an easy example to copy and paste.
+# How to use this module
 usage: |-
   For an example on how to provision source and destination S3 buckets, Glue Catalog Database and Table, and a Glue Crawler that processes 
   data in the source S3 bucket and writes the result into the destination S3 bucket, 
@@ -78,7 +78,109 @@ usage: |-
   (which tests and deploys the examples on AWS), see [test](test).
 
 # Example usage
-# examples: |-
+examples: |-
+
+  ```hcl
+  
+  locals {
+    s3_bucket_job_source_name = module.s3_bucket_job_source.bucket_id
+    role_arn                  = module.iam_role.arn
+  }
+
+  module "s3_bucket_job_source" {
+    source  = "cloudposse/s3-bucket/aws"
+    version = "2.0.3"
+  
+    acl                          = "private"
+    versioning_enabled           = false
+    force_destroy                = true
+    allow_encrypted_uploads_only = true
+    allow_ssl_requests_only      = true
+    block_public_acls            = true
+    block_public_policy          = true
+    ignore_public_acls           = true
+    restrict_public_buckets      = true
+  
+    context    = module.this.context
+  }
+
+  module "iam_role" {
+    source  = "cloudposse/iam-role/aws"
+    version = "0.16.2"
+  
+    principals = {
+      "Service" = ["glue.amazonaws.com"]
+    }
+  
+    managed_policy_arns = [
+      "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
+    ]
+  
+    policy_document_count = 0
+    policy_description    = "Policy for AWS Glue with access to EC2, S3, and Cloudwatch Logs"
+    role_description      = "Role for AWS Glue with access to EC2, S3, and Cloudwatch Logs"
+  
+    context = module.this.context
+  }
+
+  module "glue_workflow" {
+    source = "cloudposse/glue/aws//modules/glue-workflow"
+    # version     = "x.x.x"
+  
+    workflow_description = "Test Glue Workflow"
+    max_concurrent_runs  = 2
+  
+    context = module.this.context
+  }
+
+  module "glue_job" {
+    source = "cloudposse/glue/aws//modules/glue-job"
+    # version     = "x.x.x"
+  
+    job_description   = "Glue Job that runs a Python script"
+    role_arn          = local.role_arn
+    worker_type       = "Standard"
+    number_of_workers = 2
+    max_retries       = 2
+  
+    # The job timeout in minutes
+    timeout = 20
+  
+    command = {
+      name            = "Run Python script"
+      script_location = format("s3://%s/example.py", local.s3_bucket_job_source_name)
+      python_version  = 3
+    }
+  
+    context = module.this.context
+  }
+
+  module "glue_trigger" {
+    source = "cloudposse/glue/aws//modules/glue-trigger"
+    # version     = "x.x.x"
+  
+    workflow_name       = module.glue_workflow.name
+    trigger_enabled     = true
+    start_on_creation   = true
+    trigger_description = "Glue Trigger that triggers a Glue Job on a schedule"
+    schedule            = "cron(15 12 * * ? *)"
+    type                = "SCHEDULED"
+  
+    actions = [
+      {
+        job_name               = module.glue_job.name
+        crawler_name           = null
+        arguments              = null
+        security_configuration = null
+        notification_property  = null
+        # The job run timeout in minutes. It overrides the timeout value of the job
+        timeout = 10
+      }
+    ]
+  
+    context = module.this.context
+  }
+  ```
 
 # Other files to include in this README from the project folder
 include:
