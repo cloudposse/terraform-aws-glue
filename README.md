@@ -112,7 +112,7 @@ data in the source S3 bucket and writes the result into the destination S3 bucke
 see [examples/crawler](examples/crawler).
 
 For an example on how to provision a Glue Workflow with Glue Jobs and Glue Triggers, 
-see [examples/workflow](examples/workflow).
+see [examples/complete](examples/complete).
 
 For automated tests of the examples using [bats](https://github.com/bats-core/bats-core) and [Terratest](https://github.com/gruntwork-io/terratest)
 (which tests and deploys the examples on AWS), see [test](test).

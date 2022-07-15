@@ -11,13 +11,13 @@ import (
 )
 
 // Test the Terraform module in examples/workflow using Terratest.
-func TestExamplesWorkflow(t *testing.T) {
+func TestExamplesComplete(t *testing.T) {
 	t.Parallel()
 	randID := strings.ToLower(random.UniqueId())
 	attributes := []string{randID}
 
 	rootFolder := "../../"
-	terraformFolderRelativeToRoot := "examples/workflow"
+	terraformFolderRelativeToRoot := "examples/complete"
 	varFiles := []string{"fixtures.us-east-2.tfvars"}
 
 	tempTestFolder := testStructure.CopyTerraformFolderToTemp(t, rootFolder, terraformFolderRelativeToRoot)
@@ -55,13 +55,13 @@ func TestExamplesWorkflow(t *testing.T) {
 	assert.Equal(t, "eg-ue2-test-glue-workflow-"+randID, triggerName)
 }
 
-func TestExamplesWorkflowDisabled(t *testing.T) {
+func TestExamplesCompleteDisabled(t *testing.T) {
 	t.Parallel()
 	randID := strings.ToLower(random.UniqueId())
 	attributes := []string{randID}
 
 	rootFolder := "../../"
-	terraformFolderRelativeToRoot := "examples/workflow"
+	terraformFolderRelativeToRoot := "examples/complete"
 	varFiles := []string{"fixtures.us-east-2.tfvars"}
 
 	tempTestFolder := testStructure.CopyTerraformFolderToTemp(t, rootFolder, terraformFolderRelativeToRoot)
