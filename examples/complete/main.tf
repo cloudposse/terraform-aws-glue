@@ -1,6 +1,6 @@
 locals {
-  s3_bucket_job_source_name = module.s3_bucket_job_source.bucket_id
-  role_arn                  = module.iam_role.arn
+  s3_bucket_job_source_arn = module.s3_bucket_job_source.bucket_arn
+  role_arn                 = module.iam_role.arn
 }
 
 module "s3_bucket_job_source" {
@@ -67,7 +67,7 @@ module "glue_job" {
     # The name of the job command. Defaults to `glueetl`.
     # Use `pythonshell` for Python Shell Job Type, or `gluestreaming` for Streaming Job Type.
     name            = "glueetl"
-    script_location = format("s3://%s/example.py", local.s3_bucket_job_source_name)
+    script_location = format("s3://%s/example.py", local.s3_bucket_job_source_arn)
     python_version  = 3
   }
 
