@@ -60,7 +60,7 @@ module "glue_job" {
   timeout = 20
 
   command = {
-    name            = "Run Python script"
+    name            = "glueetl"
     script_location = format("s3://%s/geo.py", module.s3_bucket_job_source.bucket_id)
     python_version  = 3
   }
