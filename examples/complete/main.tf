@@ -63,9 +63,9 @@ module "glue_job" {
   # The job timeout in minutes
   timeout = 20
 
-  # The name of the job command. Defaults to `glueetl`.
-  # Use `pythonshell` for Python Shell Job Type, or `gluestreaming` for Streaming Job Type.
   command = {
+    # The name of the job command. Defaults to `glueetl`.
+    # Use `pythonshell` for Python Shell Job Type, or `gluestreaming` for Streaming Job Type.
     name            = "glueetl"
     script_location = format("s3://%s/example.py", local.s3_bucket_job_source_name)
     python_version  = 3

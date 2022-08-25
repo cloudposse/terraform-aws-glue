@@ -79,7 +79,6 @@ variable "command" {
   #  type = object({
   #    # The name of the job command. Defaults to `glueetl`.
   #    # Use `pythonshell` for Python Shell Job Type, or `gluestreaming` for Streaming Job Type.
-  #    # `max_capacity` needs to be set if `pythonshell` is chosen
   #    name = string
   #    # Specifies the S3 path to a script that executes the job
   #    script_location = string
