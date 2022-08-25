@@ -135,6 +135,11 @@ module "glue_crawler" {
   role                = local.role_arn
   schedule            = "cron(0 1 * * ? *)"
 
+  schema_change_policy = {
+    delete_behavior = "LOG"
+    update_behavior = null
+  }
+
   catalog_target = [
     {
       database_name = module.glue_catalog_database.name
