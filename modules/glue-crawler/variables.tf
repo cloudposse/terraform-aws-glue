@@ -76,7 +76,7 @@ variable "s3_target" {
 
   # Using `type = list(any)` since some of the the fields are optional and we don't want to force the caller to specify all of them and set to `null` those not used
   type        = list(any)
-  description = "List nested Amazon S3 target arguments."
+  description = "List of nested Amazon S3 target arguments."
   default     = null
 }
 
@@ -89,7 +89,7 @@ variable "mongodb_target" {
 
   # Using `type = list(any)` since some of the the fields are optional and we don't want to force the caller to specify all of them and set to `null` those not used
   type        = list(any)
-  description = "List nested MongoDB target arguments."
+  description = "List of nested MongoDB target arguments."
   default     = null
 }
 
@@ -98,7 +98,7 @@ variable "catalog_target" {
     database_name = string
     tables        = list(string)
   }))
-  description = "List nested Glue catalog target arguments."
+  description = "List of nested Glue catalog target arguments."
   default     = null
 }
 
@@ -108,7 +108,7 @@ variable "delta_target" {
     delta_tables    = list(string)
     write_manifest  = bool
   }))
-  description = "List nested Delta target arguments."
+  description = "List of nested Delta target arguments."
   default     = null
 }
 
