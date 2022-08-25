@@ -113,7 +113,7 @@ locals {
 module "glue_catalog_database" {
   source = "cloudposse/glue/aws//modules/glue-catalog-database"
   # Cloud Posse recommends pinning every module to a specific version
-  # version     = "x.x.x"
+  # version = "x.x.x"
 
   catalog_database_description = "Glue Catalog database for the data located in ${local.data_source}"
   location_uri                 = local.data_source
@@ -128,7 +128,7 @@ module "glue_catalog_database" {
 module "glue_crawler" {
   source = "cloudposse/glue/aws//modules/glue-crawler"
   # Cloud Posse recommends pinning every module to a specific version
-  # version     = "x.x.x"
+  # version = "x.x.x"
 
   crawler_description = "Glue crawler that processes data in ${local.data_source} and writes the metadata into a Glue Catalog database"
   database_name       = module.glue_catalog_database.name
@@ -148,7 +148,8 @@ module "glue_crawler" {
 # Source S3 bucket to store Glue Job scripts
 module "s3_bucket_source" {
   source  = "cloudposse/s3-bucket/aws"
-  version = "2.0.3"
+  # Cloud Posse recommends pinning every module to a specific version
+  # version = "x.x.x"
 
   acl                          = "private"
   versioning_enabled           = false
@@ -179,7 +180,8 @@ resource "aws_s3_object" "job_script" {
 # Destination S3 bucket to store Glue Job results
 module "s3_bucket_destination" {
   source  = "cloudposse/s3-bucket/aws"
-  version = "2.0.3"
+  # Cloud Posse recommends pinning every module to a specific version
+  # version = "x.x.x"
 
   acl                          = "private"
   versioning_enabled           = false
@@ -197,7 +199,8 @@ module "s3_bucket_destination" {
 
 module "iam_role" {
   source  = "cloudposse/iam-role/aws"
-  version = "0.16.2"
+  # Cloud Posse recommends pinning every module to a specific version
+  # version = "x.x.x"
 
   principals = {
     "Service" = ["glue.amazonaws.com"]
@@ -217,7 +220,7 @@ module "iam_role" {
 module "glue_workflow" {
   source = "cloudposse/glue/aws//modules/glue-workflow"
   # Cloud Posse recommends pinning every module to a specific version
-  # version     = "x.x.x"
+  # version = "x.x.x"
 
   workflow_description = "Test Glue Workflow"
   max_concurrent_runs  = 2
@@ -228,7 +231,7 @@ module "glue_workflow" {
 module "glue_job" {
   source = "cloudposse/glue/aws//modules/glue-job"
   # Cloud Posse recommends pinning every module to a specific version
-  # version     = "x.x.x"
+  # version = "x.x.x"
 
   job_description   = "Glue Job that runs data_cleaning.py Python script"
   role_arn          = local.role_arn
@@ -254,7 +257,7 @@ module "glue_job" {
 module "glue_trigger" {
   source = "cloudposse/glue/aws//modules/glue-trigger"
   # Cloud Posse recommends pinning every module to a specific version
-  # version     = "x.x.x"
+  # version = "x.x.x"
 
   workflow_name       = module.glue_workflow.name
   trigger_enabled     = true
