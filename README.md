@@ -78,12 +78,15 @@ It's 100% Open Source and licensed under the [APACHE2](LICENSE).
 
 
 
-For an example on how to provision source and destination S3 buckets, Glue Catalog Database and Table, and a Glue Crawler that processes 
+For a complete example, see [examples/complete](examples/complete). 
+The example provisions a Glue catalog database and a Glue crawler that crawls a public dataset in an S3 bucket and writes the metadata into the Glue catalog database.
+It also provisions an S3 bucket with a Glue Job Python script, and a destination S3 bucket for Glue job results.
+And finally, it provisions a Glue job pointing to the Python script in the S3 bucket, and a Glue trigger that triggers the Glue job on a schedule.
+The Glue job processes the dataset, cleans up the data, and writes the result into the destination S3 bucket.
+
+For an example on how to provision source and destination S3 buckets, Glue Catalog database and table, and a Glue crawler that processes 
 data in the source S3 bucket and writes the result into the destination S3 bucket, 
 see [examples/crawler](examples/crawler).
-
-For an example on how to provision a Glue Workflow with Glue Jobs and Glue Triggers, 
-see [examples/complete](examples/complete).
 
 For automated tests of the examples using [bats](https://github.com/bats-core/bats-core) and [Terratest](https://github.com/gruntwork-io/terratest)
 (which tests and deploys the examples on AWS), see [test](test).
