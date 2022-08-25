@@ -10,11 +10,11 @@ from pyspark.sql.types import StringType
 glueContext = GlueContext(SparkContext.getOrCreate())
 
 # Data Catalog: database and table name
-db_name = "payments"
+db_name = "eg-ue2-test-glue-payments"
 tbl_name = "medicare"
 
 # S3 location for output
-output_dir = "s3://eg-ue2-test-glue-test-destination/medicare_parquet"
+output_dir = "s3://eg-ue2-test-glue-destination/medicare_parquet"
 
 # Read data into a DynamicFrame using the Data Catalog metadata
 medicare_dyf = glueContext.create_dynamic_frame.from_catalog(database=db_name, table_name=tbl_name)

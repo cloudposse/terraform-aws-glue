@@ -42,17 +42,17 @@ func TestExamplesComplete(t *testing.T) {
 	// Run `terraform output` to get the value of an output variable
 	workflowName := terraform.Output(t, terraformOptions, "workflow_name")
 	// Verify we're getting back the outputs we expect
-	assert.Equal(t, "eg-ue2-test-glue-test-"+randID, workflowName)
+	assert.Equal(t, "eg-ue2-test-glue-"+randID, workflowName)
 
 	// Run `terraform output` to get the value of an output variable
 	jobName := terraform.Output(t, terraformOptions, "job_name")
 	// Verify we're getting back the outputs we expect
-	assert.Equal(t, "eg-ue2-test-glue-test-"+randID, jobName)
+	assert.Equal(t, "eg-ue2-test-glue-"+randID, jobName)
 
 	// Run `terraform output` to get the value of an output variable
 	triggerName := terraform.Output(t, terraformOptions, "trigger_name")
 	// Verify we're getting back the outputs we expect
-	assert.Equal(t, "eg-ue2-test-glue-test-"+randID, triggerName)
+	assert.Equal(t, "eg-ue2-test-glue-"+randID, triggerName)
 }
 
 func TestExamplesCompleteDisabled(t *testing.T) {
