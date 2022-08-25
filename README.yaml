@@ -46,6 +46,12 @@ references:
   - name: Program AWS Glue ETL Scripts in Python
     description: Documentation about the process of running ETL with AWS Glue and the Python programming language
     url: https://docs.aws.amazon.com/glue/latest/dg/aws-glue-programming-python.html
+  - name: Python shell jobs in AWS Glue
+    description: Documentation about the process of configuring and running Python shell jobs in AWS Glue
+    url: https://docs.aws.amazon.com/glue/latest/dg/add-job-python.html
+  - name: AWS Glue Jobs unit testing
+    description: Illustrates the execution of PyTest unit test cases for AWS Glue jobs in AWS CodePipeline using AWS CodeBuild projects
+    url: https://github.com/aws-samples/aws-glue-jobs-unit-testing
 
 # Short description of this project
 description: |-
@@ -53,15 +59,15 @@ description: |-
   
   The following Glue resources are supported:
   
-    - Catalog database
-    - Catalog table
-    - Connection
-    - Crawler
-    - Job
-    - Registry
-    - Schema
-    - Trigger
-    - Workflow
+    - [Catalog database](modules/glue-catalog-database)
+    - [Catalog table](modules/glue-catalog-table)
+    - [Connection](modules/glue-connection)
+    - [Crawler](modules/glue-crawler)
+    - [Job](modules/glue-job)
+    - [Registry](modules/glue-registry)
+    - [Schema](modules/glue-schema)
+    - [Trigger](modules/glue-trigger)
+    - [Workflow](modules/glue-workflow)
 
   Refer to [modules](modules) for more details.
 
@@ -81,7 +87,7 @@ usage: |-
 examples: |-
 
   ```hcl
-  
+
   locals {
     s3_bucket_job_source_name = module.s3_bucket_job_source.bucket_id
     role_arn                  = module.iam_role.arn

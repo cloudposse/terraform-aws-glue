@@ -32,15 +32,15 @@ Terraform modules for provisioning and managing AWS [Glue](https://docs.aws.amaz
 
 The following Glue resources are supported:
 
-  - Catalog database
-  - Catalog table
-  - Connection
-  - Crawler
-  - Job
-  - Registry
-  - Schema
-  - Trigger
-  - Workflow
+  - [Catalog database](modules/glue-catalog-database)
+  - [Catalog table](modules/glue-catalog-table)
+  - [Connection](modules/glue-connection)
+  - [Crawler](modules/glue-crawler)
+  - [Job](modules/glue-job)
+  - [Registry](modules/glue-registry)
+  - [Schema](modules/glue-schema)
+  - [Trigger](modules/glue-trigger)
+  - [Workflow](modules/glue-workflow)
 
 Refer to [modules](modules) for more details.
 
@@ -285,6 +285,8 @@ For additional context, refer to some of these links.
 
 - [Glue Getting Started Guide](https://docs.aws.amazon.com/glue/latest/dg/getting-started.html) - Guide for getting oriented with glue and spark
 - [Program AWS Glue ETL Scripts in Python](https://docs.aws.amazon.com/glue/latest/dg/aws-glue-programming-python.html) - Documentation about the process of running ETL with AWS Glue and the Python programming language
+- [Python shell jobs in AWS Glue](https://docs.aws.amazon.com/glue/latest/dg/add-job-python.html) - Documentation about the process of configuring and running Python shell jobs in AWS Glue
+- [AWS Glue Jobs unit testing](https://github.com/aws-samples/aws-glue-jobs-unit-testing) - Illustrates the execution of PyTest unit test cases for AWS Glue jobs in AWS CodePipeline using AWS CodeBuild projects
 
 
 ## Help
