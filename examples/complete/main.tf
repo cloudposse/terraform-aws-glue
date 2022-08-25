@@ -1,8 +1,43 @@
 locals {
-  enabled               = module.this.enabled
-  s3_bucket_source      = module.s3_bucket_source.bucket_id
-  s3_bucket_destination = module.s3_bucket_destination.bucket_id
-  role_arn              = module.iam_role.arn
+  enabled          = module.this.enabled
+  s3_bucket_source = module.s3_bucket_source.bucket_id
+  role_arn         = module.iam_role.arn
+
+  # The dataset used in this example consists of Medicare-Provider payment data downloaded from two Data.CMS.gov sites:
+  # Inpatient Prospective Payment System Provider Summary for the Top 100 Diagnosis-Related Groups - FY2011, and Inpatient Charge Data FY 2011.
+  # AWS modified the data to introduce a couple of erroneous records at the tail end of the file
+  data_source = "s3://awsglue-datasets/examples/medicare/Medicare_Hospital_Provider.csv"
+}
+
+module "glue_catalog_database" {
+  source = "../../modules/glue-catalog-database"
+
+  catalog_database_description = "Glue Catalog database for the data located in ${local.data_source}"
+  location_uri                 = local.data_source
+
+  attributes = ["payments"]
+  context    = module.this.context
+}
+
+# Crawls the data in the S3 bucket and puts the results into a database in the Glue Data Catalog.
+# The crawler will read the first 2 MB of data from that file, and recognize the schema.
+# After that, the crawler will create a table `medicare` in the Glue database.
+module "glue_crawler" {
+  source = "../../modules/glue-crawler"
+
+  crawler_description = "Glue crawler that processes data in ${local.data_source} and writes the metadata into a Glue Catalog database"
+  database_name       = module.glue_catalog_database.name
+  role                = local.role_arn
+  schedule            = "cron(0 1 * * ? *)"
+
+  catalog_target = [
+    {
+      database_name = module.glue_catalog_database.name
+      tables        = ["medicare"]
+    }
+  ]
+
+  context = module.this.context
 }
 
 # Source S3 bucket to store Glue Job scripts

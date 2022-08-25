@@ -97,14 +97,55 @@ For automated tests of the examples using [bats](https://github.com/bats-core/ba
 ```hcl
 
 locals {
-  s3_bucket_job_source_name = module.s3_bucket_job_source.bucket_id
-  role_arn                  = module.iam_role.arn
+  enabled          = module.this.enabled
+  s3_bucket_source = module.s3_bucket_source.bucket_id
+  role_arn         = module.iam_role.arn
+
+  # The dataset used in this example consists of Medicare-Provider payment data downloaded from two Data.CMS.gov sites:
+  # Inpatient Prospective Payment System Provider Summary for the Top 100 Diagnosis-Related Groups - FY2011, and Inpatient Charge Data FY 2011.
+  # AWS modified the data to introduce a couple of erroneous records at the tail end of the file
+  data_source = "s3://awsglue-datasets/examples/medicare/Medicare_Hospital_Provider.csv"
 }
 
-module "s3_bucket_job_source" {
-  source = "cloudposse/s3-bucket/aws"
+module "glue_catalog_database" {
+  source = "cloudposse/glue/aws//modules/glue-catalog-database"
   # Cloud Posse recommends pinning every module to a specific version
-  # version = "x.x.x"
+  # version     = "x.x.x"
+
+  catalog_database_description = "Glue Catalog database for the data located in ${local.data_source}"
+  location_uri                 = local.data_source
+
+  attributes = ["payments"]
+  context    = module.this.context
+}
+
+# Crawls the data in the S3 bucket and puts the results into a database in the Glue Data Catalog.
+# The crawler will read the first 2 MB of data from that file, and recognize the schema.
+# After that, the crawler will create a table `medicare` in the Glue database.
+module "glue_crawler" {
+  source = "cloudposse/glue/aws//modules/glue-crawler"
+  # Cloud Posse recommends pinning every module to a specific version
+  # version     = "x.x.x"
+
+  crawler_description = "Glue crawler that processes data in ${local.data_source} and writes the metadata into a Glue Catalog database"
+  database_name       = module.glue_catalog_database.name
+  role                = local.role_arn
+  schedule            = "cron(0 1 * * ? *)"
+
+  catalog_target = [
+    {
+      database_name = module.glue_catalog_database.name
+      tables        = ["medicare"]
+    }
+  ]
+
+  context = module.this.context
+}
+
+# Source S3 bucket to store Glue Job scripts
+module "s3_bucket_source" {
+  source  = "cloudposse/s3-bucket/aws"
+  version = "2.0.3"
 
   acl                          = "private"
   versioning_enabled           = false
@@ -116,13 +157,44 @@ module "s3_bucket_job_source" {
   ignore_public_acls           = true
   restrict_public_buckets      = true
 
+  attributes = ["source"]
+  context    = module.this.context
+}
+
+resource "aws_s3_object" "job_script" {
+  count = local.enabled ? 1 : 0
+
+  bucket        = local.s3_bucket_source
+  key           = "data_cleaning.py"
+  source        = "${path.module}/scripts/data_cleaning.py"
+  force_destroy = true
+  etag          = filemd5("${path.module}/scripts/data_cleaning.py")
+
+  tags = module.this.tags
+}
+
+# Destination S3 bucket to store Glue Job results
+module "s3_bucket_destination" {
+  source  = "cloudposse/s3-bucket/aws"
+  version = "2.0.3"
+
+  acl                          = "private"
+  versioning_enabled           = false
+  force_destroy                = true
+  allow_encrypted_uploads_only = true
+  allow_ssl_requests_only      = true
+  block_public_acls            = true
+  block_public_policy          = true
+  ignore_public_acls           = true
+  restrict_public_buckets      = true
+
+  attributes = ["destination"]
   context    = module.this.context
 }
 
 module "iam_role" {
-  source = "cloudposse/iam-role/aws"
-  # Cloud Posse recommends pinning every module to a specific version
-  # version = "x.x.x"
+  source  = "cloudposse/iam-role/aws"
+  version = "0.16.2"
 
   principals = {
     "Service" = ["glue.amazonaws.com"]
@@ -142,7 +214,7 @@ module "iam_role" {
 module "glue_workflow" {
   source = "cloudposse/glue/aws//modules/glue-workflow"
   # Cloud Posse recommends pinning every module to a specific version
-  # version = "x.x.x"
+  # version     = "x.x.x"
 
   workflow_description = "Test Glue Workflow"
   max_concurrent_runs  = 2
@@ -153,10 +225,11 @@ module "glue_workflow" {
 module "glue_job" {
   source = "cloudposse/glue/aws//modules/glue-job"
   # Cloud Posse recommends pinning every module to a specific version
-  # version = "x.x.x"
+  # version     = "x.x.x"
 
-  job_description   = "Glue Job that runs a Python script"
+  job_description   = "Glue Job that runs data_cleaning.py Python script"
   role_arn          = local.role_arn
+  glue_version      = var.glue_version
   worker_type       = "Standard"
   number_of_workers = 2
   max_retries       = 2
@@ -165,8 +238,10 @@ module "glue_job" {
   timeout = 20
 
   command = {
-    name            = "Run Python script"
-    script_location = format("s3://%s/example.py", local.s3_bucket_job_source_name)
+    # The name of the job command. Defaults to `glueetl`.
+    # Use `pythonshell` for Python Shell Job Type, or `gluestreaming` for Streaming Job Type.
+    name            = "glueetl"
+    script_location = format("s3://%s/data_cleaning.py", local.s3_bucket_source)
     python_version  = 3
   }
 
@@ -176,7 +251,7 @@ module "glue_job" {
 module "glue_trigger" {
   source = "cloudposse/glue/aws//modules/glue-trigger"
   # Cloud Posse recommends pinning every module to a specific version
-  # version = "x.x.x"
+  # version     = "x.x.x"
 
   workflow_name       = module.glue_workflow.name
   trigger_enabled     = true
