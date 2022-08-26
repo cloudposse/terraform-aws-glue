@@ -104,7 +104,7 @@ examples: |-
     # AWS modified the data to introduce a couple of erroneous records at the tail end of the file
     data_source = "s3://awsglue-datasets/examples/medicare/Medicare_Hospital_Provider.csv"
   }
-  
+
   module "glue_catalog_database" {
     source = "cloudposse/glue/aws//modules/glue-catalog-database"
     # Cloud Posse recommends pinning every module to a specific version
@@ -125,7 +125,12 @@ examples: |-
     catalog_table_name        = "medicare"
     catalog_table_description = "Test Glue Catalog table"
     database_name             = module.glue_catalog_database.name
-  
+
+    storage_descriptor = {
+      # Physical location of the table
+      location = local.data_source
+    }
+
     context    = module.this.context
   }
 

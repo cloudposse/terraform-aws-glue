@@ -26,6 +26,11 @@ module "glue_catalog_table" {
   catalog_table_description = "Test Glue Catalog table"
   database_name             = module.glue_catalog_database.name
 
+  storage_descriptor = {
+    # Physical location of the table
+    location = local.data_source
+  }
+
   context = module.this.context
 }
 
