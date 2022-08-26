@@ -40,6 +40,8 @@ module "glue_catalog_table" {
 # Error: error creating Glue crawler: InvalidInputException: Insufficient Lake Formation permission(s) on medicare (Service: AmazonDataCatalog; Status Code: 400; Error Code: AccessDeniedException
 # https://aws.amazon.com/premiumsupport/knowledge-center/glue-insufficient-lakeformation-permissions/
 resource "aws_lakeformation_permissions" "default" {
+  count = local.enabled ? 1 : 0
+
   principal   = local.role_arn
   permissions = ["ALL"]
 

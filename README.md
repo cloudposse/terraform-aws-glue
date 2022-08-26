@@ -202,8 +202,6 @@ module "s3_bucket_source" {
 }
 
 resource "aws_s3_object" "job_script" {
-  count = local.enabled ? 1 : 0
-
   bucket        = local.s3_bucket_source
   key           = "data_cleaning.py"
   source        = "${path.module}/scripts/data_cleaning.py"
