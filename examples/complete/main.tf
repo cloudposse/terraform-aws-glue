@@ -12,21 +12,21 @@ locals {
 module "glue_catalog_database" {
   source = "../../modules/glue-catalog-database"
 
+  catalog_database_name        = "payments"
   catalog_database_description = "Glue Catalog database for the data located in ${local.data_source}"
   location_uri                 = local.data_source
 
-  attributes = ["payments"]
-  context    = module.this.context
+  context = module.this.context
 }
 
 module "glue_catalog_table" {
   source = "../../modules/glue-catalog-table"
 
+  catalog_table_name        = "medicare"
   catalog_table_description = "Test Glue Catalog table"
   database_name             = module.glue_catalog_database.name
 
-  attributes = ["medicare"]
-  context    = module.this.context
+  context = module.this.context
 }
 
 # Crawls the data in the S3 bucket and puts the results into a database in the Glue Data Catalog.

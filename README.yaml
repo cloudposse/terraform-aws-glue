@@ -52,6 +52,9 @@ references:
   - name: AWS Glue Jobs unit testing
     description: Illustrates the execution of PyTest unit test cases for AWS Glue jobs in AWS CodePipeline using AWS CodeBuild projects
     url: https://github.com/aws-samples/aws-glue-jobs-unit-testing
+  - name: AWS Glue knowledge center
+    description: Why does my AWS Glue crawler or ETL job fail with the error "Insufficient Lake Formation permission(s)"?
+    url: https://aws.amazon.com/premiumsupport/knowledge-center/glue-insufficient-lakeformation-permissions/
 
 # Short description of this project
 description: |-
@@ -119,10 +122,10 @@ examples: |-
     # Cloud Posse recommends pinning every module to a specific version
     # version = "x.x.x"
   
+    catalog_table_name        = "medicare"
     catalog_table_description = "Test Glue Catalog table"
     database_name             = module.glue_catalog_database.name
   
-    attributes = ["medicare"]
     context    = module.this.context
   }
 

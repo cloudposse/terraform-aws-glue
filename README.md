@@ -127,10 +127,10 @@ module "glue_catalog_table" {
   # Cloud Posse recommends pinning every module to a specific version
   # version = "x.x.x"
 
+  catalog_table_name        = "medicare"
   catalog_table_description = "Test Glue Catalog table"
   database_name             = module.glue_catalog_database.name
 
-  attributes = ["medicare"]
   context    = module.this.context
 }
 
@@ -385,6 +385,7 @@ For additional context, refer to some of these links.
 - [Program AWS Glue ETL Scripts in Python](https://docs.aws.amazon.com/glue/latest/dg/aws-glue-programming-python.html) - Documentation about the process of running ETL with AWS Glue and the Python programming language
 - [Python shell jobs in AWS Glue](https://docs.aws.amazon.com/glue/latest/dg/add-job-python.html) - Documentation about the process of configuring and running Python shell jobs in AWS Glue
 - [AWS Glue Jobs unit testing](https://github.com/aws-samples/aws-glue-jobs-unit-testing) - Illustrates the execution of PyTest unit test cases for AWS Glue jobs in AWS CodePipeline using AWS CodeBuild projects
+- [AWS Glue knowledge center](https://aws.amazon.com/premiumsupport/knowledge-center/glue-insufficient-lakeformation-permissions/) - Why does my AWS Glue crawler or ETL job fail with the error "Insufficient Lake Formation permission(s)"?
 
 
 ## Help
