@@ -19,9 +19,19 @@ module "glue_catalog_database" {
   context    = module.this.context
 }
 
+module "glue_catalog_table" {
+  source = "../../modules/glue-catalog-table"
+
+  catalog_table_description = "Test Glue Catalog table"
+  database_name             = module.glue_catalog_database.name
+
+  attributes = ["medicare"]
+  context    = module.this.context
+}
+
 # Crawls the data in the S3 bucket and puts the results into a database in the Glue Data Catalog.
 # The crawler will read the first 2 MB of data from that file, and recognize the schema.
-# After that, the crawler will create a table `medicare` in the Glue database.
+# After that, the crawler will sync the table `medicare` in the Glue database.
 module "glue_crawler" {
   source = "../../modules/glue-crawler"
 
@@ -38,7 +48,7 @@ module "glue_crawler" {
   catalog_target = [
     {
       database_name = module.glue_catalog_database.name
-      tables        = ["medicare"]
+      tables        = [module.glue_catalog_table.name]
     }
   ]
 

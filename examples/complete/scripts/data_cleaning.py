@@ -11,7 +11,7 @@ glueContext = GlueContext(SparkContext.getOrCreate())
 
 # Data Catalog: database and table name
 db_name = "eg-ue2-test-glue-payments"
-tbl_name = "medicare"
+tbl_name = "eg-ue2-test-glue-medicare"
 
 # S3 location for output
 output_dir = "s3://eg-ue2-test-glue-destination/medicare_parquet"
