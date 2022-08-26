@@ -1,9 +1,88 @@
 locals {
-  s3_bucket_job_source_name = module.s3_bucket_job_source.bucket_id
-  role_arn                  = module.iam_role.arn
+  enabled          = module.this.enabled
+  s3_bucket_source = module.s3_bucket_source.bucket_id
+  role_arn         = module.iam_role.arn
+
+  # The dataset used in this example consists of Medicare-Provider payment data downloaded from two Data.CMS.gov sites:
+  # Inpatient Prospective Payment System Provider Summary for the Top 100 Diagnosis-Related Groups - FY2011, and Inpatient Charge Data FY 2011.
+  # AWS modified the data to introduce a couple of erroneous records at the tail end of the file
+  data_source = "s3://awsglue-datasets/examples/medicare/Medicare_Hospital_Provider.csv"
 }
 
-module "s3_bucket_job_source" {
+module "glue_catalog_database" {
+  source = "../../modules/glue-catalog-database"
+
+  catalog_database_name        = "payments"
+  catalog_database_description = "Glue Catalog database for the data located in ${local.data_source}"
+  location_uri                 = local.data_source
+
+  context = module.this.context
+}
+
+module "glue_catalog_table" {
+  source = "../../modules/glue-catalog-table"
+
+  catalog_table_name        = "medicare"
+  catalog_table_description = "Test Glue Catalog table"
+  database_name             = module.glue_catalog_database.name
+
+  storage_descriptor = {
+    # Physical location of the table
+    location = local.data_source
+  }
+
+  context = module.this.context
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lakeformation_permissions
+# Grant Lake Formation permissions to the IAM role that the Glue crawler uses to access Glue resources.
+# This prevents the error:
+# Error: error creating Glue crawler: InvalidInputException: Insufficient Lake Formation permission(s) on medicare (Service: AmazonDataCatalog; Status Code: 400; Error Code: AccessDeniedException
+# https://aws.amazon.com/premiumsupport/knowledge-center/glue-insufficient-lakeformation-permissions/
+resource "aws_lakeformation_permissions" "default" {
+  count = local.enabled ? 1 : 0
+
+  principal   = local.role_arn
+  permissions = ["ALL"]
+
+  table {
+    database_name = module.glue_catalog_database.name
+    name          = module.glue_catalog_table.name
+  }
+}
+
+# Crawls the data in the S3 bucket and puts the results into a database in the Glue Data Catalog.
+# The crawler will read the first 2 MB of data from that file, and recognize the schema.
+# After that, the crawler will sync the table `medicare` in the Glue database.
+module "glue_crawler" {
+  source = "../../modules/glue-crawler"
+
+  crawler_description = "Glue crawler that processes data in ${local.data_source} and writes the metadata into a Glue Catalog database"
+  database_name       = module.glue_catalog_database.name
+  role                = local.role_arn
+  schedule            = "cron(0 1 * * ? *)"
+
+  schema_change_policy = {
+    delete_behavior = "LOG"
+    update_behavior = null
+  }
+
+  catalog_target = [
+    {
+      database_name = module.glue_catalog_database.name
+      tables        = [module.glue_catalog_table.name]
+    }
+  ]
+
+  context = module.this.context
+
+  depends_on = [
+    aws_lakeformation_permissions.default
+  ]
+}
+
+# Source S3 bucket to store Glue Job scripts
+module "s3_bucket_source" {
   source  = "cloudposse/s3-bucket/aws"
   version = "2.0.3"
 
@@ -17,7 +96,39 @@ module "s3_bucket_job_source" {
   ignore_public_acls           = true
   restrict_public_buckets      = true
 
-  context = module.this.context
+  attributes = ["source"]
+  context    = module.this.context
+}
+
+resource "aws_s3_object" "job_script" {
+  count = local.enabled ? 1 : 0
+
+  bucket        = local.s3_bucket_source
+  key           = "data_cleaning.py"
+  source        = "${path.module}/scripts/data_cleaning.py"
+  force_destroy = true
+  etag          = filemd5("${path.module}/scripts/data_cleaning.py")
+
+  tags = module.this.tags
+}
+
+# Destination S3 bucket to store Glue Job results
+module "s3_bucket_destination" {
+  source  = "cloudposse/s3-bucket/aws"
+  version = "2.0.3"
+
+  acl                          = "private"
+  versioning_enabled           = false
+  force_destroy                = true
+  allow_encrypted_uploads_only = true
+  allow_ssl_requests_only      = true
+  block_public_acls            = true
+  block_public_policy          = true
+  ignore_public_acls           = true
+  restrict_public_buckets      = true
+
+  attributes = ["destination"]
+  context    = module.this.context
 }
 
 module "iam_role" {
@@ -53,7 +164,7 @@ module "glue_workflow" {
 module "glue_job" {
   source = "../../modules/glue-job"
 
-  job_description   = "Glue Job that runs a Python script"
+  job_description   = "Glue Job that runs data_cleaning.py Python script"
   role_arn          = local.role_arn
   glue_version      = var.glue_version
   worker_type       = "Standard"
@@ -64,8 +175,10 @@ module "glue_job" {
   timeout = 20
 
   command = {
-    name            = "Run Python script"
-    script_location = format("s3://%s/example.py", local.s3_bucket_job_source_name)
+    # The name of the job command. Defaults to `glueetl`.
+    # Use `pythonshell` for Python Shell Job Type, or `gluestreaming` for Streaming Job Type.
+    name            = "glueetl"
+    script_location = format("s3://%s/data_cleaning.py", local.s3_bucket_source)
     python_version  = 3
   }
 

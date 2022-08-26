@@ -47,7 +47,7 @@ variable "security_configuration" {
 
 variable "timeout" {
   type        = number
-  description = "The job timeout in minutes. The default is 2880 minutes (48 hours) for `glueetl` and `pythonshell` jobs, and `null` (unlimted) for `gluestreaming` jobs."
+  description = "The job timeout in minutes. The default is 2880 minutes (48 hours) for `glueetl` and `pythonshell` jobs, and `null` (unlimited) for `gluestreaming` jobs."
   default     = 2880
 }
 
@@ -77,9 +77,8 @@ variable "number_of_workers" {
 
 variable "command" {
   #  type = object({
-  #    # The name of the job command. Defaults to glueetl.
+  #    # The name of the job command. Defaults to `glueetl`.
   #    # Use `pythonshell` for Python Shell Job Type, or `gluestreaming` for Streaming Job Type.
-  #    # `max_capacity` needs to be set if `pythonshell` is chosen
   #    name = string
   #    # Specifies the S3 path to a script that executes the job
   #    script_location = string

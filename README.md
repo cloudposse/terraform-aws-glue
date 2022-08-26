@@ -32,15 +32,15 @@ Terraform modules for provisioning and managing AWS [Glue](https://docs.aws.amaz
 
 The following Glue resources are supported:
 
-  - Catalog database
-  - Catalog table
-  - Connection
-  - Crawler
-  - Job
-  - Registry
-  - Schema
-  - Trigger
-  - Workflow
+  - [Catalog database](modules/glue-catalog-database)
+  - [Catalog table](modules/glue-catalog-table)
+  - [Connection](modules/glue-connection)
+  - [Crawler](modules/glue-crawler)
+  - [Job](modules/glue-job)
+  - [Registry](modules/glue-registry)
+  - [Schema](modules/glue-schema)
+  - [Trigger](modules/glue-trigger)
+  - [Workflow](modules/glue-workflow)
 
 Refer to [modules](modules) for more details.
 
@@ -78,12 +78,15 @@ It's 100% Open Source and licensed under the [APACHE2](LICENSE).
 
 
 
-For an example on how to provision source and destination S3 buckets, Glue Catalog Database and Table, and a Glue Crawler that processes 
+For a complete example, see [examples/complete](examples/complete). 
+The example provisions a Glue catalog database and a Glue crawler that crawls a public dataset in an S3 bucket and writes the metadata into the Glue catalog database.
+It also provisions an S3 bucket with a Glue Job Python script, and a destination S3 bucket for Glue job results.
+And finally, it provisions a Glue job pointing to the Python script in the S3 bucket, and a Glue trigger that triggers the Glue job on a schedule.
+The Glue job processes the dataset, cleans up the data, and writes the result into the destination S3 bucket.
+
+For an example on how to provision source and destination S3 buckets, Glue Catalog database and table, and a Glue crawler that processes 
 data in the source S3 bucket and writes the result into the destination S3 bucket, 
 see [examples/crawler](examples/crawler).
-
-For an example on how to provision a Glue Workflow with Glue Jobs and Glue Triggers, 
-see [examples/complete](examples/complete).
 
 For automated tests of the examples using [bats](https://github.com/bats-core/bats-core) and [Terratest](https://github.com/gruntwork-io/terratest)
 (which tests and deploys the examples on AWS), see [test](test).
@@ -97,12 +100,90 @@ For automated tests of the examples using [bats](https://github.com/bats-core/ba
 ```hcl
 
 locals {
-  s3_bucket_job_source_name = module.s3_bucket_job_source.bucket_id
-  role_arn                  = module.iam_role.arn
+  enabled          = module.this.enabled
+  s3_bucket_source = module.s3_bucket_source.bucket_id
+  role_arn         = module.iam_role.arn
+
+  # The dataset used in this example consists of Medicare-Provider payment data downloaded from two Data.CMS.gov sites:
+  # Inpatient Prospective Payment System Provider Summary for the Top 100 Diagnosis-Related Groups - FY2011, and Inpatient Charge Data FY 2011.
+  # AWS modified the data to introduce a couple of erroneous records at the tail end of the file
+  data_source = "s3://awsglue-datasets/examples/medicare/Medicare_Hospital_Provider.csv"
 }
 
-module "s3_bucket_job_source" {
-  source = "cloudposse/s3-bucket/aws"
+module "glue_catalog_database" {
+  source = "cloudposse/glue/aws//modules/glue-catalog-database"
+  # Cloud Posse recommends pinning every module to a specific version
+  # version = "x.x.x"
+
+  catalog_database_description = "Glue Catalog database for the data located in ${local.data_source}"
+  location_uri                 = local.data_source
+
+  attributes = ["payments"]
+  context    = module.this.context
+}
+
+module "glue_catalog_table" {
+  source = "cloudposse/glue/aws//modules/glue-catalog-table"
+  # Cloud Posse recommends pinning every module to a specific version
+  # version = "x.x.x"
+
+  catalog_table_name        = "medicare"
+  catalog_table_description = "Test Glue Catalog table"
+  database_name             = module.glue_catalog_database.name
+
+  storage_descriptor = {
+    # Physical location of the table
+    location = local.data_source
+  }
+
+  context    = module.this.context
+}
+
+resource "aws_lakeformation_permissions" "default" {
+  principal   = local.role_arn
+  permissions = ["ALL"]
+
+  table {
+    database_name = module.glue_catalog_database.name
+    name          = module.glue_catalog_table.name
+  }
+}
+
+# Crawls the data in the S3 bucket and puts the results into a database in the Glue Data Catalog.
+# The crawler will read the first 2 MB of data from that file, and recognize the schema.
+# After that, the crawler will sync the table `medicare` in the Glue database.
+module "glue_crawler" {
+  source = "cloudposse/glue/aws//modules/glue-crawler"
+  # Cloud Posse recommends pinning every module to a specific version
+  # version = "x.x.x"
+
+  crawler_description = "Glue crawler that processes data in ${local.data_source} and writes the metadata into a Glue Catalog database"
+  database_name       = module.glue_catalog_database.name
+  role                = local.role_arn
+  schedule            = "cron(0 1 * * ? *)"
+
+  schema_change_policy = {
+    delete_behavior = "LOG"
+    update_behavior = null
+  }
+
+  catalog_target = [
+    {
+      database_name = module.glue_catalog_database.name
+      tables        = [module.glue_catalog_table.name]
+    }
+  ]
+
+  context = module.this.context
+
+  depends_on = [
+    aws_lakeformation_permissions.default
+  ]
+}
+
+# Source S3 bucket to store Glue Job scripts
+module "s3_bucket_source" {
+  source  = "cloudposse/s3-bucket/aws"
   # Cloud Posse recommends pinning every module to a specific version
   # version = "x.x.x"
 
@@ -116,11 +197,42 @@ module "s3_bucket_job_source" {
   ignore_public_acls           = true
   restrict_public_buckets      = true
 
+  attributes = ["source"]
+  context    = module.this.context
+}
+
+resource "aws_s3_object" "job_script" {
+  bucket        = local.s3_bucket_source
+  key           = "data_cleaning.py"
+  source        = "${path.module}/scripts/data_cleaning.py"
+  force_destroy = true
+  etag          = filemd5("${path.module}/scripts/data_cleaning.py")
+
+  tags = module.this.tags
+}
+
+# Destination S3 bucket to store Glue Job results
+module "s3_bucket_destination" {
+  source  = "cloudposse/s3-bucket/aws"
+  # Cloud Posse recommends pinning every module to a specific version
+  # version = "x.x.x"
+
+  acl                          = "private"
+  versioning_enabled           = false
+  force_destroy                = true
+  allow_encrypted_uploads_only = true
+  allow_ssl_requests_only      = true
+  block_public_acls            = true
+  block_public_policy          = true
+  ignore_public_acls           = true
+  restrict_public_buckets      = true
+
+  attributes = ["destination"]
   context    = module.this.context
 }
 
 module "iam_role" {
-  source = "cloudposse/iam-role/aws"
+  source  = "cloudposse/iam-role/aws"
   # Cloud Posse recommends pinning every module to a specific version
   # version = "x.x.x"
 
@@ -155,8 +267,9 @@ module "glue_job" {
   # Cloud Posse recommends pinning every module to a specific version
   # version = "x.x.x"
 
-  job_description   = "Glue Job that runs a Python script"
+  job_description   = "Glue Job that runs data_cleaning.py Python script"
   role_arn          = local.role_arn
+  glue_version      = var.glue_version
   worker_type       = "Standard"
   number_of_workers = 2
   max_retries       = 2
@@ -165,8 +278,10 @@ module "glue_job" {
   timeout = 20
 
   command = {
-    name            = "Run Python script"
-    script_location = format("s3://%s/example.py", local.s3_bucket_job_source_name)
+    # The name of the job command. Defaults to `glueetl`.
+    # Use `pythonshell` for Python Shell Job Type, or `gluestreaming` for Streaming Job Type.
+    name            = "glueetl"
+    script_location = format("s3://%s/data_cleaning.py", local.s3_bucket_source)
     python_version  = 3
   }
 
@@ -285,6 +400,9 @@ For additional context, refer to some of these links.
 
 - [Glue Getting Started Guide](https://docs.aws.amazon.com/glue/latest/dg/getting-started.html) - Guide for getting oriented with glue and spark
 - [Program AWS Glue ETL Scripts in Python](https://docs.aws.amazon.com/glue/latest/dg/aws-glue-programming-python.html) - Documentation about the process of running ETL with AWS Glue and the Python programming language
+- [Python shell jobs in AWS Glue](https://docs.aws.amazon.com/glue/latest/dg/add-job-python.html) - Documentation about the process of configuring and running Python shell jobs in AWS Glue
+- [AWS Glue Jobs unit testing](https://github.com/aws-samples/aws-glue-jobs-unit-testing) - Illustrates the execution of PyTest unit test cases for AWS Glue jobs in AWS CodePipeline using AWS CodeBuild projects
+- [AWS Glue knowledge center](https://aws.amazon.com/premiumsupport/knowledge-center/glue-insufficient-lakeformation-permissions/) - Why does my AWS Glue crawler or ETL job fail with the error "Insufficient Lake Formation permission(s)"?
 
 
 ## Help
