@@ -29,6 +29,21 @@ module "glue_catalog_table" {
   context = module.this.context
 }
 
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lakeformation_permissions
+# Grant Lake Formation permissions to the IAM role that the Glue crawler uses to access Glue resources.
+# This prevents the error:
+# Error: error creating Glue crawler: InvalidInputException: Insufficient Lake Formation permission(s) on medicare (Service: AmazonDataCatalog; Status Code: 400; Error Code: AccessDeniedException
+# https://aws.amazon.com/premiumsupport/knowledge-center/glue-insufficient-lakeformation-permissions/
+resource "aws_lakeformation_permissions" "default" {
+  principal   = local.role_arn
+  permissions = ["ALL"]
+
+  table {
+    database_name = module.glue_catalog_database.name
+    name          = module.glue_catalog_table.name
+  }
+}
+
 # Crawls the data in the S3 bucket and puts the results into a database in the Glue Data Catalog.
 # The crawler will read the first 2 MB of data from that file, and recognize the schema.
 # After that, the crawler will sync the table `medicare` in the Glue database.
@@ -53,6 +68,10 @@ module "glue_crawler" {
   ]
 
   context = module.this.context
+
+  depends_on = [
+    aws_lakeformation_permissions.default
+  ]
 }
 
 # Source S3 bucket to store Glue Job scripts
