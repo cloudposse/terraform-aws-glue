@@ -18,12 +18,12 @@ variable "workflow_name" {
 
 variable "type" {
   type        = string
-  description = "The type of trigger. Options are CONDITIONAL, SCHEDULED or ON_DEMAND."
+  description = "The type of trigger. Options are CONDITIONAL, SCHEDULED, ON_DEMAND or EVENT."
   default     = "CONDITIONAL"
 
   validation {
-    condition     = contains(["CONDITIONAL", "SCHEDULED", "ON_DEMAND"], var.type)
-    error_message = "Supported options are CONDITIONAL, SCHEDULED or ON_DEMAND."
+    condition     = contains(["CONDITIONAL", "SCHEDULED", "ON_DEMAND", "EVENT"], var.type)
+    error_message = "Supported options are CONDITIONAL, SCHEDULED, ON_DEMAND or EVENT."
   }
 }
 
