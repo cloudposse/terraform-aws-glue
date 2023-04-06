@@ -27,12 +27,12 @@ resource "aws_glue_catalog_table" "this" {
   }
 
   dynamic "partition_keys" {
-    for_each = var.partition_keys != null ? [true] : []
+    for_each = var.partition_keys
 
     content {
-      name    = var.partition_keys.name
-      comment = try(var.partition_keys.comment, null)
-      type    = try(var.partition_keys.type, null)
+      name    = partition_keys.value.name
+      comment = try(partition_keys.value.comment, null)
+      type    = try(partition_keys.value.type, null)
     }
   }
 
