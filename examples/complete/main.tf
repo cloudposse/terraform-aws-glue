@@ -31,6 +31,8 @@ module "glue_catalog_table" {
     location = local.data_source
   }
 
+  partition_keys = var.glue_catalog_table_partition_keys
+
   context = module.this.context
 }
 
