@@ -86,7 +86,7 @@ module "glue_crawler" {
 # Source S3 bucket to store Glue Job scripts
 module "s3_bucket_source" {
   source  = "cloudposse/s3-bucket/aws"
-  version = "2.0.3"
+  version = "3.1.2"
 
   acl                          = "private"
   versioning_enabled           = false
@@ -117,7 +117,7 @@ resource "aws_s3_object" "job_script" {
 # Destination S3 bucket to store Glue Job results
 module "s3_bucket_destination" {
   source  = "cloudposse/s3-bucket/aws"
-  version = "2.0.3"
+  version = "3.1.2"
 
   acl                          = "private"
   versioning_enabled           = false

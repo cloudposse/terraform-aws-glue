@@ -7,7 +7,7 @@ locals {
 
 module "s3_bucket_source" {
   source  = "cloudposse/s3-bucket/aws"
-  version = "2.0.3"
+  version = "3.1.2"
 
   acl                          = "private"
   versioning_enabled           = false
@@ -25,7 +25,7 @@ module "s3_bucket_source" {
 
 module "s3_bucket_destination" {
   source  = "cloudposse/s3-bucket/aws"
-  version = "2.0.3"
+  version = "3.1.2"
 
   acl                          = "private"
   versioning_enabled           = false
