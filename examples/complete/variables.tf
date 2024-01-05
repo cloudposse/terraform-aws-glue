@@ -14,3 +14,13 @@ variable "glue_catalog_table_partition_keys" {
   description = "Configuration block of columns by which the table is partitioned. Only primitive types are supported as partition keys."
   default     = {}
 }
+
+
+variable "glue_catalog_table_partition_index" {
+  type = map(object({
+    index_name = string
+    keys       = list(string)
+  }))
+  description = "Configuration block for a maximum of 3 partition indexes."
+  default     = {}
+}

@@ -34,12 +34,12 @@ variable "parameters" {
 }
 
 variable "partition_index" {
-  type = object({
+  type = map(object({
     index_name = string
     keys       = list(string)
-  })
+  }))
   description = "Configuration block for a maximum of 3 partition indexes."
-  default     = null
+  default     = {}
 }
 
 variable "partition_keys" {

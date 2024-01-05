@@ -28,3 +28,19 @@ glue_catalog_table_partition_keys = {
     comment = "test4"
   }
 }
+
+
+glue_catalog_table_partition_index = {
+  test   = { 
+    index_name = "test", 
+    keys = ["test"] 
+  },
+  test2 = { 
+    index_name = "test2",
+    keys = ["test2"] 
+  }
+  test3     = { 
+    index_name = "test3_test4",
+    keys = ["test3", "test4"]
+  }
+}
