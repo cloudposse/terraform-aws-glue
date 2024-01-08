@@ -1,5 +1,11 @@
 locals {
   enabled = module.this.enabled
+  partition_indices = var.partition_index != null ? merge(var.partition_indices, {
+    "0" = {
+      index_name = var.partition_index.index_name
+      keys       = var.partition_index.keys
+    }
+  }) : var.partition_indices
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/glue_catalog_table
@@ -18,7 +24,7 @@ resource "aws_glue_catalog_table" "this" {
   view_original_text = var.view_original_text
 
   dynamic "partition_index" {
-    for_each = var.partition_keys
+    for_each = local.partition_indices
 
     content {
       index_name = partition_index.value.index_name

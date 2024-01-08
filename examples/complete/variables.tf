@@ -16,7 +16,7 @@ variable "glue_catalog_table_partition_keys" {
 }
 
 
-variable "glue_catalog_table_partition_index" {
+variable "glue_catalog_table_partition_indices" {
   type = map(object({
     index_name = string
     keys       = list(string)

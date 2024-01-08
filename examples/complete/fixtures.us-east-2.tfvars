@@ -30,7 +30,7 @@ glue_catalog_table_partition_keys = {
 }
 
 
-glue_catalog_table_partition_index = {
+glue_catalog_table_partition_indices = {
   test   = { 
     index_name = "test", 
     keys = ["test"] 

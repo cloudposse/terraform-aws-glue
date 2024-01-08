@@ -33,7 +33,7 @@ module "glue_catalog_table" {
 
   partition_keys = var.glue_catalog_table_partition_keys
 
-  partition_index = var.glue_catalog_table_partition_index
+  partition_index = var.glue_catalog_table_partition_indices
 
   context = module.this.context
 }
