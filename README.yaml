@@ -23,15 +23,15 @@ github_repo: cloudposse/terraform-aws-glue
 
 # Badges to display
 badges:
-  - name: "Latest Release"
-    image: "https://img.shields.io/github/release/cloudposse/terraform-aws-glue.svg"
-    url: "https://github.com/cloudposse/terraform-aws-glue/releases/latest"
-  - name: "Slack Community"
-    image: "https://slack.cloudposse.com/badge.svg"
-    url: "https://slack.cloudposse.com"
-  - name: "Discourse Forum"
-    image: "https://img.shields.io/discourse/https/ask.sweetops.com/posts.svg"
-    url: "https://ask.sweetops.com/"
+  - name: Latest Release
+    image: https://img.shields.io/github/release/cloudposse/terraform-aws-glue.svg?style=for-the-badge
+    url: https://github.com/cloudposse/terraform-aws-glue/releases/latest
+  - name: Last Updated
+    image: https://img.shields.io/github/last-commit/cloudposse/terraform-aws-glue.svg?style=for-the-badge
+    url: https://github.com/cloudposse/terraform-aws-glue/commits
+  - name: Slack Community
+    image: https://slack.cloudposse.com/for-the-badge.svg
+    url: https://slack.cloudposse.com
 
 # List any related terraform modules that this module may be used with or that this module depends on.
 related:
@@ -59,9 +59,9 @@ references:
 # Short description of this project
 description: |-
   Terraform modules for provisioning and managing AWS [Glue](https://docs.aws.amazon.com/glue/latest/dg/what-is-glue.html) resources. 
-  
+
   The following Glue resources are supported:
-  
+
     - [Catalog database](modules/glue-catalog-database)
     - [Catalog table](modules/glue-catalog-table)
     - [Connection](modules/glue-connection)
@@ -90,7 +90,7 @@ usage: |-
   (which tests and deploys the examples on AWS), see [test](test).
 
 # Example usage
-examples: |-
+examples: |2-
 
   ```hcl
 
@@ -98,7 +98,7 @@ examples: |-
     enabled          = module.this.enabled
     s3_bucket_source = module.s3_bucket_source.bucket_id
     role_arn         = module.iam_role.arn
-  
+
     # The dataset used in this example consists of Medicare-Provider payment data downloaded from two Data.CMS.gov sites:
     # Inpatient Prospective Payment System Provider Summary for the Top 100 Diagnosis-Related Groups - FY2011, and Inpatient Charge Data FY 2011.
     # AWS modified the data to introduce a couple of erroneous records at the tail end of the file
@@ -112,7 +112,7 @@ examples: |-
 
     catalog_database_description = "Glue Catalog database for the data located in ${local.data_source}"
     location_uri                 = local.data_source
-  
+
     attributes = ["payments"]
     context    = module.this.context
   }
@@ -121,7 +121,7 @@ examples: |-
     source = "cloudposse/glue/aws//modules/glue-catalog-table"
     # Cloud Posse recommends pinning every module to a specific version
     # version = "x.x.x"
-  
+
     catalog_table_name        = "medicare"
     catalog_table_description = "Test Glue Catalog table"
     database_name             = module.glue_catalog_database.name
@@ -181,7 +181,7 @@ examples: |-
     source  = "cloudposse/s3-bucket/aws"
     # Cloud Posse recommends pinning every module to a specific version
     # version = "x.x.x"
-  
+
     acl                          = "private"
     versioning_enabled           = false
     force_destroy                = true
@@ -191,7 +191,7 @@ examples: |-
     block_public_policy          = true
     ignore_public_acls           = true
     restrict_public_buckets      = true
-  
+
     attributes = ["source"]
     context    = module.this.context
   }
@@ -202,7 +202,7 @@ examples: |-
     source        = "${path.module}/scripts/data_cleaning.py"
     force_destroy = true
     etag          = filemd5("${path.module}/scripts/data_cleaning.py")
-  
+
     tags = module.this.tags
   }
 
@@ -211,7 +211,7 @@ examples: |-
     source  = "cloudposse/s3-bucket/aws"
     # Cloud Posse recommends pinning every module to a specific version
     # version = "x.x.x"
-  
+
     acl                          = "private"
     versioning_enabled           = false
     force_destroy                = true
@@ -221,28 +221,28 @@ examples: |-
     block_public_policy          = true
     ignore_public_acls           = true
     restrict_public_buckets      = true
-  
+
     attributes = ["destination"]
     context    = module.this.context
   }
-  
+
   module "iam_role" {
     source  = "cloudposse/iam-role/aws"
     # Cloud Posse recommends pinning every module to a specific version
     # version = "x.x.x"
-  
+
     principals = {
       "Service" = ["glue.amazonaws.com"]
     }
-  
+
     managed_policy_arns = [
       "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
     ]
-  
+
     policy_document_count = 0
     policy_description    = "Policy for AWS Glue with access to EC2, S3, and Cloudwatch Logs"
     role_description      = "Role for AWS Glue with access to EC2, S3, and Cloudwatch Logs"
-  
+
     context = module.this.context
   }
 
@@ -253,7 +253,7 @@ examples: |-
 
     workflow_description = "Test Glue Workflow"
     max_concurrent_runs  = 2
-  
+
     context = module.this.context
   }
 
@@ -261,14 +261,14 @@ examples: |-
     source = "cloudposse/glue/aws//modules/glue-job"
     # Cloud Posse recommends pinning every module to a specific version
     # version = "x.x.x"
-  
+
     job_description   = "Glue Job that runs data_cleaning.py Python script"
     role_arn          = local.role_arn
     glue_version      = var.glue_version
     worker_type       = "Standard"
     number_of_workers = 2
     max_retries       = 2
-  
+
     # The job timeout in minutes
     timeout = 20
 
@@ -279,7 +279,7 @@ examples: |-
       script_location = format("s3://%s/data_cleaning.py", local.s3_bucket_source)
       python_version  = 3
     }
-  
+
     context = module.this.context
   }
 
@@ -313,10 +313,4 @@ include:
   - "docs/terraform.md"
 
 # Contributors to this project
-contributors:
-  - name: "Erik Osterman"
-    github: "osterman"
-  - name: "Leo Przybylski"
-    github: "r351574nc3"
-  - name: "Andriy Knysh"
-    github: "aknysh"
+contributors: []
