@@ -104,9 +104,10 @@ variable "catalog_target" {
 
 variable "delta_target" {
   type = list(object({
-    connection_name = string
-    delta_tables    = list(string)
-    write_manifest  = bool
+    connection_name           = string
+    create_native_delta_table = bool
+    delta_tables              = list(string)
+    write_manifest            = bool
   }))
   description = "List of nested Delta target arguments."
   default     = null
