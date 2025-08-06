@@ -105,7 +105,7 @@ variable "catalog_target" {
 variable "delta_target" {
   type = list(object({
     connection_name           = string
-    create_native_delta_table = optional(bool)
+    create_native_delta_table = optional(bool, false)
     delta_tables              = list(string)
     write_manifest            = bool
   }))
