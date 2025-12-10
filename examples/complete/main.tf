@@ -86,7 +86,7 @@ module "glue_crawler" {
 # Source S3 bucket to store Glue Job scripts
 module "s3_bucket_source" {
   source  = "cloudposse/s3-bucket/aws"
-  version = "2.0.3"
+  version = "4.10.0"
 
   acl                          = "private"
   versioning_enabled           = false
@@ -98,6 +98,7 @@ module "s3_bucket_source" {
   ignore_public_acls           = true
   restrict_public_buckets      = true
 
+
   attributes = ["source"]
   context    = module.this.context
 }
@@ -108,7 +109,8 @@ resource "aws_s3_object" "job_script" {
   bucket        = local.s3_bucket_source
   key           = "data_cleaning.py"
   source        = "${path.module}/scripts/data_cleaning.py"
-  force_destroy = true
+  # This value should be set to true only if the bucket has S3 Object Lock enabled.
+  # force_destroy = true
   etag          = filemd5("${path.module}/scripts/data_cleaning.py")
 
   tags = module.this.tags
@@ -117,7 +119,7 @@ resource "aws_s3_object" "job_script" {
 # Destination S3 bucket to store Glue Job results
 module "s3_bucket_destination" {
   source  = "cloudposse/s3-bucket/aws"
-  version = "2.0.3"
+  version = "4.10.0"
 
   acl                          = "private"
   versioning_enabled           = false
