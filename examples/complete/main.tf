@@ -106,12 +106,13 @@ module "s3_bucket_source" {
 resource "aws_s3_object" "job_script" {
   count = local.enabled ? 1 : 0
 
-  bucket        = local.s3_bucket_source
-  key           = "data_cleaning.py"
-  source        = "${path.module}/scripts/data_cleaning.py"
+  bucket = local.s3_bucket_source
+  key    = "data_cleaning.py"
+  source = "${path.module}/scripts/data_cleaning.py"
+  etag   = filemd5("${path.module}/scripts/data_cleaning.py")
+
   # This value should be set to true only if the bucket has S3 Object Lock enabled.
   # force_destroy = true
-  etag          = filemd5("${path.module}/scripts/data_cleaning.py")
 
   tags = module.this.tags
 }
