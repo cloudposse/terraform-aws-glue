@@ -10,3 +10,200 @@
 # Import shared configuration used by all modules
 import:
   - https://raw.githubusercontent.com/cloudposse/.github/refs/heads/main/.github/atmos/terraform-module.yaml
+
+docs:
+  generate:
+    readme-submodule-catalog-database:
+      base-dir: ./
+      input:
+        - readme: "./modules/glue-catalog-database/README.md"
+        - get_support: true
+      template: "https://raw.githubusercontent.com/cloudposse/.github/refs/heads/main/atmos.README.md.submodule.gotmpl"
+      output: "./modules/glue-catalog-database/README.md"
+      terraform:
+        source: ./modules/glue-catalog-database
+        enabled: true
+        format: "markdown table"
+        show_providers: false
+        show_inputs: true
+        show_outputs: true
+        sort_by: "name"
+        hide_empty: false
+        indent_level: 2
+
+    readme-submodule-catalog-table:
+      base-dir: ./
+      input:
+        - readme: "./modules/glue-catalog-table/README.md"
+        - get_support: true
+      template: "https://raw.githubusercontent.com/cloudposse/.github/refs/heads/main/atmos.README.md.submodule.gotmpl"
+      output: "./modules/glue-catalog-table/README.md"
+      terraform:
+        source: ./modules/glue-catalog-table
+        enabled: true
+        format: "markdown table"
+        show_providers: false
+        show_inputs: true
+        show_outputs: true
+        sort_by: "name"
+        hide_empty: false
+        indent_level: 2
+
+    readme-submodule-catalog-connection:
+      base-dir: ./
+      input:
+        - readme: "./modules/glue-connection/README.md"
+        - get_support: true
+      template: "https://raw.githubusercontent.com/cloudposse/.github/refs/heads/main/atmos.README.md.submodule.gotmpl"
+      output: "./modules/glue-connection/README.md"
+      terraform:
+        source: ./modules/glue-connection
+        enabled: true
+        format: "markdown table"
+        show_providers: false
+        show_inputs: true
+        show_outputs: true
+        sort_by: "name"
+        hide_empty: false
+        indent_level: 2
+
+    readme-submodule-catalog-crawler:
+      base-dir: ./
+      input:
+        - readme: "./modules/glue-crawler/README.md"
+        - get_support: true
+      template: "https://raw.githubusercontent.com/cloudposse/.github/refs/heads/main/atmos.README.md.submodule.gotmpl"
+      output: "./modules/glue-crawler/README.md"
+      terraform:
+        source: ./modules/glue-crawler
+        enabled: true
+        format: "markdown table"
+        show_providers: false
+        show_inputs: true
+        show_outputs: true
+        sort_by: "name"
+        hide_empty: false
+        indent_level: 2
+
+    readme-submodule-catalog-job:
+      base-dir: ./
+      input:
+        - readme: "./modules/glue-job/README.md"
+        - get_support: true
+      template: "https://raw.githubusercontent.com/cloudposse/.github/refs/heads/main/atmos.README.md.submodule.gotmpl"
+      output: "./modules/glue-job/README.md"
+      terraform:
+        source: ./modules/glue-job
+        enabled: true
+        format: "markdown table"
+        show_providers: false
+        show_inputs: true
+        show_outputs: true
+        sort_by: "name"
+        hide_empty: false
+        indent_level: 2
+
+    readme-submodule-catalog-registry:
+      base-dir: ./
+      input:
+        - readme: "./modules/glue-registry/README.md"
+        - get_support: true
+      template: "https://raw.githubusercontent.com/cloudposse/.github/refs/heads/main/atmos.README.md.submodule.gotmpl"
+      output: "./modules/glue-registry/README.md"
+      terraform:
+        source: ./modules/glue-registry
+        enabled: true
+        format: "markdown table"
+        show_providers: false
+        show_inputs: true
+        show_outputs: true
+        sort_by: "name"
+        hide_empty: false
+        indent_level: 2
+
+    readme-submodule-catalog-schema:
+      base-dir: ./
+      input:
+        - readme: "./modules/glue-schema/README.md"
+        - get_support: true
+      template: "https://raw.githubusercontent.com/cloudposse/.github/refs/heads/main/atmos.README.md.submodule.gotmpl"
+      output: "./modules/glue-schema/README.md"
+      terraform:
+        source: ./modules/glue-schema
+        enabled: true
+        format: "markdown table"
+        show_providers: false
+        show_inputs: true
+        show_outputs: true
+        sort_by: "name"
+        hide_empty: false
+        indent_level: 2
+
+    readme-submodule-catalog-trigger:
+      base-dir: ./
+      input:
+        - readme: "./modules/glue-trigger/README.md"
+        - get_support: true
+      template: "https://raw.githubusercontent.com/cloudposse/.github/refs/heads/main/atmos.README.md.submodule.gotmpl"
+      output: "./modules/glue-trigger/README.md"
+      terraform:
+        source: ./modules/glue-trigger
+        enabled: true
+        format: "markdown table"
+        show_providers: false
+        show_inputs: true
+        show_outputs: true
+        sort_by: "name"
+        hide_empty: false
+        indent_level: 2
+
+    readme-submodule-catalog-workflow:
+      base-dir: ./
+      input:
+        - readme: "./modules/glue-workflow/README.md"
+        - get_support: true
+      template: "https://raw.githubusercontent.com/cloudposse/.github/refs/heads/main/atmos.README.md.submodule.gotmpl"
+      output: "./modules/glue-workflow/README.md"
+      terraform:
+        source: ./modules/glue-workflow
+        enabled: true
+        format: "markdown table"
+        show_providers: false
+        show_inputs: true
+        show_outputs: true
+        sort_by: "name"
+        hide_empty: false
+        indent_level: 2
+
+commands:
+- name: readme
+  steps:
+    - "atmos docs generate readme"
+    - "atmos docs generate readme-submodule-catalog-database"
+    - "atmos docs generate readme-submodule-catalog-table"
+    - "atmos docs generate readme-submodule-catalog-connection"
+    - "atmos docs generate readme-submodule-catalog-crawler"
+    - "atmos docs generate readme-submodule-catalog-job"
+    - "atmos docs generate readme-submodule-catalog-registry"
+    - "atmos docs generate readme-submodule-catalog-schema"
+    - "atmos docs generate readme-submodule-catalog-trigger"
+    - "atmos docs generate readme-submodule-catalog-workflow"
+
+- name: test
+  commands:
+  - name: "init"
+    description: Initialize tests
+    steps:
+      - "make -C test/src init"
+
+  - name: "run"
+    description: Run tests
+    steps:
+      - "cd test/src && go mod tidy"
+      - "cd test/src && go test -v -timeout 60m"
+
+  - name: "clean"
+    description: Clean tests
+    steps:
+      - "make -C test/src clean"
+      - "rm -rf examples/*/.terraform examples/*/.terraform.lock.hcl"
